@@ -1,0 +1,378 @@
+/* Header Styles */
+.mainHeader {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.headerInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  color: #007AFF;
+  font-weight: bold;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+.navMenu {
+  display: flex;
+  gap: 24px;
+  margin: 0 auto;
+}
+
+.navLink {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 0;
+  position: relative;
+}
+
+.navLink:hover, .navLink.active {
+  color: #007AFF;
+}
+
+.navLink.active:after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #007AFF;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+}
+
+/* Page Content Styles */
+.pageWrapper {
+  background-color: #f5f5f7;
+  min-height: calc(100vh - 64px);
+  padding: 24px 0;
+}
+
+.postsListContainer {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.communityTitle {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.languageToggle {
+  margin-left: 16px;
+}
+
+.languageButton {
+  background-color: #f0f0f0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: none;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.languageButton:hover {
+  background-color: #e0e0e0;
+}
+
+.newPostButton {
+  background-color: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.newPostButton:hover {
+  background-color: #0056b3;
+}
+
+.postsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.postItem {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.postItem:hover {
+  transform: translateY(-2px);
+}
+
+.postTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.postPreview {
+  color: #555;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.postMeta {
+  display: flex;
+  font-size: 14px;
+  color: #777;
+  gap: 8px;
+}
+
+/* Post Detail View */
+.postDetail {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: #007AFF;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 0;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.backButton:hover {
+  text-decoration: underline;
+}
+
+.detailTitle {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.detailMeta {
+  display: flex;
+  font-size: 14px;
+  color: #777;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.detailContent {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.commentsSection {
+  margin-top: 32px;
+}
+
+.commentsSection h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.commentItem {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 0;
+}
+
+.commentMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.commentAuthor {
+  font-weight: 500;
+}
+
+.commentDate {
+  color: #888;
+  font-size: 14px;
+}
+
+.commentContent {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.addCommentSection {
+  margin-top: 24px;
+}
+
+.commentInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-height: 80px;
+  margin-bottom: 12px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.commentButton {
+  background-color: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  float: right;
+}
+
+.commentButton:hover {
+  background-color: #0056b3;
+}
+
+/* New Post Form */
+.newPostForm {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.formHeader h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.cancelButton {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px 12px;
+}
+
+.submitButton {
+  background-color: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background-color: #0056b3;
+}
+
+.titleInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.contentInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 16px;
+  resize: vertical;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .headerInner {
+    height: auto;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  
+  .navMenu {
+    order: 3;
+    width: 100%;
+    margin: 12px 0;
+    justify-content: space-between;
+    overflow-x: auto;
+  }
+  
+  .postsListContainer,
+  .postDetail,
+  .newPostForm {
+    padding: 0 16px;
+  }
+  
+  .detailTitle {
+    font-size: 22px;
+  }
+  
+  .formHeader {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

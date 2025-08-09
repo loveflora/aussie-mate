@@ -48,3 +48,10 @@ a {
     display: unset;
   }
 }
+
+/* Add consistent layout styling for all pages */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
