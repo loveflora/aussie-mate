@@ -23,9 +23,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="community"
         options={{
-          title: 'Explore',
+          title: 'Community',
+          tabBarIcon: ({ color }) => <Text style={{ color }}>👥</Text>,
+        }}
+      />
+        <Tabs.Screen
+        name="postcode-finder"
+        options={{
+          title: 'Postcode Finder',
           tabBarIcon: ({ color }) => <Text style={{ color }}>🔍</Text>,
         }}
       />
