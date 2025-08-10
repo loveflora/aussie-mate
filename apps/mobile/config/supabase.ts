@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Supabase URL과 API 키
 // 실제 값으로 교체해야 합니다
@@ -16,7 +16,7 @@ console.log('🔍 환경 정보:', {
 console.log('🔍 SUPABASE_URL:', SUPABASE_URL || '(설정되지 않음)');
 
 // Supabase 클라이언트 - 조건부 생성
-let supabase = null;
+let supabase: SupabaseClient | null = null;
 
 if (SUPABASE_URL && SUPABASE_ANON_KEY) {
   try {
