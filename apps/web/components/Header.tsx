@@ -1,5 +1,5 @@
 "use client";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -12,6 +12,12 @@ export default function Header() {
   const pathname = usePathname();
   const { language, setLanguage } = useContext(LanguageContext);
   const { user } = useAuth(); // 사용자 인증 정보 가져오기
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // 클라이언트 사이드 렌더링 확인
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // Check if the current path matches the link
   const isActive = (path) => {
@@ -82,11 +88,11 @@ export default function Header() {
 
           {/* 인증 상태에 따라 버튼 표시 */}
           <div className={styles.authButtons}>
-            {user ? (
+            {isMounted && user ? (
               <Link href="/mypage" className={styles.loginButton}>
                 {t.mypage}
               </Link>
-            ) : (
+            ) : isMounted ? (
               <>
                 <Link href="/auth/login" className={styles.loginButton}>
                   {t.login}
@@ -95,6 +101,11 @@ export default function Header() {
                   {t.signup}
                 </Link>
               </>
+            ) : (
+              // 서버 렌더링 시 기본 상태 (로그인 버튼만 표시)
+              <Link href="/auth/login" className={styles.loginButton}>
+                {t.login}
+              </Link>
             )}
           </div>
           

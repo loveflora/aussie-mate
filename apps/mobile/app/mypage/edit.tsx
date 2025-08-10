@@ -44,11 +44,6 @@ export default function EditProfileScreen() {
       removeImage: "이미지 제거",
       username: "이름",
       email: "이메일",
-      visaInfo: "비자 정보",
-      visaType: "비자 종류",
-      visaStartDate: "시작일",
-      visaEndDate: "만료일",
-      visaStatus: "상태",
       save: "저장",
       cancel: "취소",
       requiredField: "필수 항목입니다",
@@ -64,11 +59,6 @@ export default function EditProfileScreen() {
       removeImage: "Remove Image",
       username: "Name",
       email: "Email",
-      visaInfo: "Visa Information",
-      visaType: "Visa Type",
-      visaStartDate: "Start Date",
-      visaEndDate: "End Date",
-      visaStatus: "Status",
       save: "Save",
       cancel: "Cancel",
       requiredField: "This field is required",
@@ -266,49 +256,7 @@ export default function EditProfileScreen() {
             </View>
           </View>
           
-          {/* 비자 정보 섹션 */}
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>{t.visaInfo}</Text>
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>{t.visaType}</Text>
-              <TextInput
-                style={styles.textInput}
-                value={formData.visaType}
-                onChangeText={(value) => handleChange('visaType', value)}
-                placeholder={t.visaType}
-              />
-            </View>
-            
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>{t.visaStartDate}</Text>
-              <TextInput
-                style={styles.textInput}
-                value={formData.visaStartDate}
-                onChangeText={(value) => handleChange('visaStartDate', value)}
-                placeholder="YYYY-MM-DD"
-              />
-            </View>
-            
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>{t.visaEndDate}</Text>
-              <TextInput
-                style={styles.textInput}
-                value={formData.visaEndDate}
-                onChangeText={(value) => handleChange('visaEndDate', value)}
-                placeholder="YYYY-MM-DD"
-              />
-            </View>
-            
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>{t.visaStatus}</Text>
-              <TextInput
-                style={styles.textInput}
-                value={formData.visaStatus}
-                onChangeText={(value) => handleChange('visaStatus', value)}
-                placeholder={t.visaStatus}
-              />
-            </View>
-          </View>
+       
           
           {/* 액션 버튼 */}
           <View style={styles.actionButtons}>

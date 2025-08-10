@@ -10,10 +10,11 @@ type AuthContextType = {
   isLoading: boolean;
   isAuthenticated: boolean;
   signIn: (email: string, password: string) => Promise<any>;
-  signUp: (email: string, password: string, metadata?: { state?: string }) => Promise<any>;
+  signUp: (email: string, password: string, metadata?: { state?: string, nickname?: string }) => Promise<any>;
   signOut: () => Promise<any>;
   signInWithProvider: (provider: Provider) => Promise<any>;
   resetPassword: (email: string) => Promise<any>;
+  deleteAccount: () => Promise<any>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -26,6 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => ({}),
   signInWithProvider: async () => ({}),
   resetPassword: async () => ({}),
+  deleteAccount: async () => ({}),
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -88,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, metadata?: { state?: string }) => {
+  const signUp = async (email: string, password: string, metadata?: { state?: string, nickname?: string }) => {
     setIsLoading(true);
     try {
       const result = await authApi.signUp(email, password, metadata);
@@ -157,6 +159,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteAccount = async () => {
+    setIsLoading(true);
+    try {
+      const result = await authApi.deleteAccount();
+      return result;
+    } catch (error) {
+      console.error("Delete account error:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // If there's a configuration error, we can render an error message
   if (configError && !isLoading) {
     console.error("Authentication configuration error:", configError);
@@ -174,6 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signOut,
         signInWithProvider,
         resetPassword,
+        deleteAccount,
       }}
     >
       {children}

@@ -242,3 +242,61 @@
   margin-right: 0.5rem;
   font-weight: bold;
 }
+
+/* 닉네임 중복 확인 관련 스타일 */
+.nicknameCheckGroup {
+  display: flex;
+  /* flex-direction: column; */
+  gap: 0.5rem;
+}
+
+.nicknameCheckButton {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: .75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  align-self: flex-start;
+  min-width: 120px;
+  height: 40px;
+}
+
+.nicknameCheckButton:hover {
+  background-color: #1976d2;
+}
+
+.nicknameCheckButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.nicknameAvailable {
+  color: #4caf50;
+  font-size: 0.875rem;
+  display: flex;
+  padding-top: 8px;
+  align-items: center;
+}
+
+.nicknameAvailable::before {
+  content: "✓";
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+
+.nicknameUnavailable {
+  color: #f44336;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+}
+
+.nicknameUnavailable::before {
+  content: "✗";
+  margin-right: 0.5rem;
+  font-weight: bold;
+}

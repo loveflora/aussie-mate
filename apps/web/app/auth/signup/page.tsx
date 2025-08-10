@@ -17,6 +17,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [nickname, setNickname] = useState("");
   const [state, setState] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifyingSending, setIsVerifyingSending] = useState(false);
@@ -25,6 +26,8 @@ export default function SignUp() {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [verifySuccess, setVerifySuccess] = useState(false);
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  const [isNicknameAvailable, setIsNicknameAvailable] = useState<boolean | null>(null);
 
   // Translations
   const translations = {
@@ -33,6 +36,14 @@ export default function SignUp() {
       email: "이메일",
       password: "비밀번호",
       confirmPassword: "비밀번호 확인",
+      nickname: "닉네임",
+      nicknamePlaceholder: "사용할 닉네임을 입력해주세요",
+      nicknameAvailable: "사용 가능한 닉네임입니다",
+      nicknameUnavailable: "이미 사용 중인 닉네임입니다",
+      nicknameRequired: "닉네임을 입력해주세요",
+      nicknameTooShort: "닉네임은 최소 3자 이상이어야 합니다",
+      nicknameCheck: "중복 확인",
+      checking: "확인 중...",
       state: "거주 지역(주)",
       statePlaceholder: "거주 중인 호주 주를 선택해주세요",
       signUpButton: "가입하기",
@@ -55,6 +66,14 @@ export default function SignUp() {
       email: "Email",
       password: "Password",
       confirmPassword: "Confirm Password",
+      nickname: "Nickname",
+      nicknamePlaceholder: "Enter your nickname",
+      nicknameAvailable: "Nickname is available",
+      nicknameUnavailable: "Nickname is already taken",
+      nicknameRequired: "Please enter a nickname",
+      nicknameTooShort: "Nickname must be at least 3 characters",
+      nicknameCheck: "Check availability",
+      checking: "Checking...",
       state: "Residential State",
       statePlaceholder: "Select your Australian state",
       signUpButton: "Sign Up",
@@ -118,6 +137,24 @@ export default function SignUp() {
       return;
     }
     
+    // 닉네임 확인 (빈 값 허용)
+    if (nickname.trim() !== '' && nickname.length < 3) {
+      setError(t.nicknameTooShort || "Nickname must be at least 3 characters.");
+      return;
+    }
+    
+    // 닉네임 중복 확인 - 빈 값이 아닌 경우에만 체크
+    if (nickname.trim() !== '' && isNicknameAvailable === null) {
+      setError("Please check the availability of your nickname.");
+      return;
+    }
+    
+    // 닉네임 중복 확인 실패 - 빈 값이 아닌 경우에만 체크
+    if (nickname.trim() !== '' && !isNicknameAvailable) {
+      setError(t.nicknameUnavailable || "Nickname is already taken.");
+      return;
+    }
+    
     // Check if passwords match
     if (password !== confirmPassword) {
       setError(t.passwordMismatch || "Passwords do not match.");
@@ -127,7 +164,7 @@ export default function SignUp() {
     setIsLoading(true);
     
     try {
-      const { error } = await signUp(email, password, { state });
+      const { error } = await signUp(email, password, { state, nickname });
       
       if (error) {
         setError(error.message);
@@ -207,6 +244,52 @@ export default function SignUp() {
     }
   };
 
+  const handleNicknameCheck = async () => {
+    setIsCheckingNickname(true);
+    setIsNicknameAvailable(null);
+    setError(null); // 오류 메시지 초기화
+    
+    // 닉네임이 비어있는 경우
+    if (nickname.trim() === '') {
+      setError(t.nicknameRequired || "Please enter a nickname");
+      setIsNicknameAvailable(null);
+      setIsCheckingNickname(false);
+      return;
+    }
+    
+    // Check minimum length first
+    if (nickname.length < 3) {
+      setError(t.nicknameTooShort || "Nickname must be at least 3 characters");
+      setIsNicknameAvailable(null);
+      setIsCheckingNickname(false);
+      return;
+    }
+    
+    try {
+      const { available, error } = await authApi.checkNicknameAvailability(nickname);
+      
+      if (error) {
+        // API에서 반환된 오류 메시지 표시 (특수문자 제한 등)
+        setError(error.message);
+        setIsNicknameAvailable(null); // 유효하지 않은 입력이므로 가용성 표시 안함
+      } else {
+        setIsNicknameAvailable(available);
+        if (!available) {
+          // 중복된 닉네임인 경우
+          setError(t.nicknameUnavailable || "Nickname is already taken");
+        } else {
+          // 사용 가능한 닉네임인 경우 오류 메시지 제거
+          setError(null);
+        }
+      }
+    } catch (error: any) {
+      setError(error.message);
+      setIsNicknameAvailable(null);
+    } finally {
+      setIsCheckingNickname(false);
+    }
+  };
+
   return (
     <div className={styles.signupContainer}>
       <div className={styles.signupForm}>
@@ -263,6 +346,40 @@ export default function SignUp() {
                 </button>
               )}
             </div>
+          </div>
+          
+          <div className={styles.formGroup}>
+            <label htmlFor="nickname">{t.nickname || "Nickname"}</label>
+            <div className={styles.nicknameCheckGroup}>
+              <input
+                id="nickname"
+                type="text"
+                value={nickname}
+                onChange={(e) => {
+                  setNickname(e.target.value);
+                  // 닉네임이 변경되면 가용성 상태 초기화
+                  if (isNicknameAvailable !== null) {
+                    setIsNicknameAvailable(null);
+                  }
+                }}
+                required
+                disabled={isLoading}
+                className={styles.input}
+              />
+              <button 
+                type="button"
+                onClick={handleNicknameCheck}
+                disabled={isCheckingNickname}
+                className={styles.nicknameCheckButton}
+              >
+                {isCheckingNickname ? t.checking || "Checking..." : t.nicknameCheck || "Check availability"}
+              </button>
+            </div>
+            {isNicknameAvailable !== null && !error?.includes(t.nicknameTooShort || "minimum") && (
+              <div className={isNicknameAvailable ? styles.nicknameAvailable : styles.nicknameUnavailable}>
+                {isNicknameAvailable ? t.nicknameAvailable || "Nickname is available" : t.nicknameUnavailable || "Nickname is already taken"}
+              </div>
+            )}
           </div>
           
           <div className={styles.formGroup}>

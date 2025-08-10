@@ -1,30 +1,26 @@
 "use client";
 
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { LanguageContext } from "../../client-layout";
+import { useAuth } from "../../../contexts/AuthContext";
+import { authApi } from "api";
 
-// 테스트용 사용자 데이터 - 실제로는 API 호출을 통해 가져와야 함
-const mockUser = {
-  username: "김호주",
-  email: "kim@example.com",
-  memberSince: "2025-01-15",
-  profileImage: null,
-  state: "NSW", // 호주 주(State) 정보 추가
-  visaInfo: {
-    type: "Working Holiday (417)",
-    startDate: "2025-01-20",
-    endDate: "2026-01-19",
-    status: "Active",
-    remainingDays: 163,
-  },
+// 테스트용 비자 정보 - 실제로는 API 호출을 통해 가져와야 함
+const mockVisaInfo = {
+  type: "Working Holiday (417)",
+  startDate: "2025-01-20",
+  endDate: "2026-01-19",
+  status: "Active",
+  remainingDays: 163,
 };
 
 export default function EditProfilePage() {
   const router = useRouter();
   const { language } = useContext(LanguageContext);
+  const { user, deleteAccount } = useAuth();
 
   // 번역 텍스트
   const translations = {
@@ -39,16 +35,21 @@ export default function EditProfilePage() {
       email: "이메일",
       state: "거주 지역(주)", // 한국어 번역 추가
       statePlaceholder: "거주 중인 호주 주를 선택해주세요",
-      visaInfo: "비자 정보",
-      visaType: "비자 종류",
-      visaStartDate: "시작일",
-      visaEndDate: "만료일",
-      visaStatus: "상태",
       save: "저장",
       cancel: "취소",
       requiredField: "필수 항목입니다",
       invalidEmail: "유효한 이메일 주소를 입력해주세요",
       updateSuccess: "프로필이 성공적으로 업데이트되었습니다",
+    
+      deleteAccountWarning: "계정을 삭제하면 복구할 수 없습니다. 신중하게 결정해 주세요.",
+      deleteAccount: "계정 삭제",
+      confirmDeletion: "계정 삭제 확인",
+      deletionWarning: "이 작업은 취소할 수 없습니다. 모든 데이터가 영구적으로 삭제됩니다.",
+      cancel: "취소",
+      confirmDelete: "예, 계정을 삭제합니다",
+      deleting: "삭제 중...",
+      accountDeleted: "계정이 성공적으로 삭제되었습니다",
+      deleteAccountError: "계정 삭제에 실패했습니다",
     },
     en: {
       editProfile: "Edit Profile",
@@ -61,33 +62,52 @@ export default function EditProfilePage() {
       email: "Email",
       state: "Residential State", // 영어 번역 추가
       statePlaceholder: "Select your Australian state",
-      visaInfo: "Visa Information",
-      visaType: "Visa Type",
-      visaStartDate: "Start Date",
-      visaEndDate: "End Date",
-      visaStatus: "Status",
+    
       save: "Save",
       cancel: "Cancel",
       requiredField: "This field is required",
       invalidEmail: "Please enter a valid email address",
       updateSuccess: "Your profile has been successfully updated",
+
+      deleteAccountWarning: "Once you delete your account, there is no going back. Please be certain.",
+      deleteAccount: "Delete Account",
+      confirmDeletion: "Confirm Account Deletion",
+      deletionWarning: "This action cannot be undone. All your data will be permanently deleted.",
+      cancel: "Cancel",
+      confirmDelete: "Yes, Delete My Account",
+      deleting: "Deleting...",
+      accountDeleted: "Your account has been successfully deleted",
+      deleteAccountError: "Failed to delete account",
     }
   };
 
   // 현재 언어에 맞는 번역 선택
   const t = language === "ko" ? translations.ko : translations.en;
 
-  // 폼 상태
+  // 폼 상태 (초기값은 빈 값으로 설정)
   const [formData, setFormData] = useState({
-    username: mockUser.username,
-    email: mockUser.email,
-    state: mockUser.state || "", // 주(State) 상태 추가
-    visaType: mockUser.visaInfo.type,
-    visaStartDate: mockUser.visaInfo.startDate,
-    visaEndDate: mockUser.visaInfo.endDate,
-    visaStatus: mockUser.visaInfo.status,
-    profileImage: mockUser.profileImage,
+    username: '',
+    email: '',
+    state: '',
+    visaType: mockVisaInfo.type,
+    visaStartDate: mockVisaInfo.startDate,
+    visaEndDate: mockVisaInfo.endDate,
+    visaStatus: mockVisaInfo.status,
+    profileImage: null,
   });
+
+  // 사용자 정보 불러오기
+  useEffect(() => {
+    if (user) {
+      const metadata = user.user_metadata || {};
+      setFormData(prev => ({
+        ...prev,
+        username: metadata.nickname || '',
+        email: user.email || '',
+        state: metadata.state || '',
+      }));
+    }
+  }, [user]);
 
   // 오류 상태
   const [errors, setErrors] = useState({
@@ -97,6 +117,11 @@ export default function EditProfilePage() {
 
   // 이미지 미리보기 URL
   const [imagePreview, setImagePreview] = useState(null);
+
+  // 계정 삭제 관련 상태
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 입력 필드 변경 핸들러
   const handleChange = (e) => {
@@ -109,17 +134,8 @@ export default function EditProfilePage() {
     } else if (name === "username" && value.trim()) {
       setErrors(prev => ({ ...prev, username: "" }));
     }
-
-    if (name === "email") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!value.trim()) {
-        setErrors(prev => ({ ...prev, email: t.requiredField || "This field is required" }));
-      } else if (!emailRegex.test(value)) {
-        setErrors(prev => ({ ...prev, email: t.invalidEmail || "Please enter a valid email address" }));
-      } else {
-        setErrors(prev => ({ ...prev, email: "" }));
-      }
-    }
+    
+    // Email is read-only, no need to validate
   };
 
   // 이미지 업로드 핸들러 (실제 구현은 API 연동 필요)
@@ -142,43 +158,76 @@ export default function EditProfilePage() {
   };
 
   // 폼 제출 핸들러
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // 유효성 검사
-    const newErrors = {
-      username: !formData.username.trim() ? (t.requiredField || "This field is required") : "",
-      email: !formData.email.trim() ? (t.requiredField || "This field is required") : "",
-    };
+    let hasErrors = false;
+    const newErrors = { ...errors };
     
-    // 이메일 유효성 검사
-    if (formData.email.trim() && !(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).test(formData.email)) {
-      newErrors.email = t.invalidEmail || "Please enter a valid email address";
+    if (!formData.username.trim()) {
+      newErrors.username = t.requiredField || "This field is required";
+      hasErrors = true;
     }
     
-    setErrors(newErrors);
-    
-    // 오류가 있으면 제출하지 않음
-    if (newErrors.username || newErrors.email) {
+    if (hasErrors) {
+      setErrors(newErrors);
       return;
     }
     
-    // API 호출 (실제 구현 필요)
-    // TODO: 여기서 실제 API 호출을 통해 프로필 업데이트
-    console.log("프로필 업데이트:", {
-      username: formData.username,
-      email: formData.email,
-      state: formData.state, // state 정보 저장
-      visaType: formData.visaType,
-      visaStartDate: formData.visaStartDate,
-      visaEndDate: formData.visaEndDate,
-      visaStatus: formData.visaStatus,
-      profileImage: formData.profileImage,
-    });
+    setIsLoading(true);
+    try {
+      // API를 통해 프로필 업데이트
+      const { error } = await authApi.updateUserProfile({
+        nickname: formData.username,
+        state: formData.state,
+        profile_completed: true
+      });
+      
+      if (error) {
+        console.error("프로필 업데이트 오류:", error);
+        alert(error.message);
+      } else {
+        alert(t.updateSuccess || "Your profile has been successfully updated");
+        router.push("/mypage");
+      }
+    } catch (err) {
+      console.error("프로필 업데이트 오류:", err);
+      alert(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 계정 삭제 모달 표시
+  const showDeleteModal = () => {
+    setShowDeleteConfirm(true);
+  };
+  
+  // 계정 삭제 모달 숨김
+  const hideDeleteModal = () => {
+    setShowDeleteConfirm(false);
+  };
+
+  // 계정 삭제 처리
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
     
-    // 성공 메시지 표시 후 마이페이지로 리디렉션
-    alert(t.updateSuccess || "Your profile has been successfully updated");
-    router.push('/mypage');
+    try {
+      const { success, error } = await deleteAccount();
+      if (success) {
+        alert(t.accountDeleted || "Your account has been successfully deleted");
+        router.push("/auth/login");
+      } else if (error) {
+        alert(error.message || t.deleteAccountError || "Failed to delete account");
+      }
+    } catch (err) {
+      console.error("계정 삭제 오류:", err);
+      alert(err.message || t.deleteAccountError || "Failed to delete account");
+    } finally {
+      setIsDeleting(false);
+      hideDeleteModal();
+    }
   };
 
   return (
@@ -251,10 +300,9 @@ export default function EditProfilePage() {
                 id="email"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
-                className={`${styles.formInput} ${errors.email ? styles.formInputError : ''}`}
+                readOnly
+                className={styles.formInput}
               />
-              {errors.email && <p className={styles.errorMessage}>{errors.email}</p>}
             </div>
             
             <div className={styles.formGroup}>
@@ -279,57 +327,7 @@ export default function EditProfilePage() {
             </div>
           </div>
           
-          {/* 비자 정보 섹션 */}
-          <div className={styles.formSection}>
-            <h2 className={styles.formTitle}>{t.visaInfo || "Visa Information"}</h2>
-            <div className={styles.formGroup}>
-              <label htmlFor="visaType" className={styles.formLabel}>{t.visaType || "Visa Type"}</label>
-              <input
-                type="text"
-                id="visaType"
-                name="visaType"
-                value={formData.visaType}
-                onChange={handleChange}
-                className={styles.formInput}
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="visaStartDate" className={styles.formLabel}>{t.visaStartDate || "Start Date"}</label>
-              <input
-                type="date"
-                id="visaStartDate"
-                name="visaStartDate"
-                value={formData.visaStartDate}
-                onChange={handleChange}
-                className={styles.formInput}
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="visaEndDate" className={styles.formLabel}>{t.visaEndDate || "End Date"}</label>
-              <input
-                type="date"
-                id="visaEndDate"
-                name="visaEndDate"
-                value={formData.visaEndDate}
-                onChange={handleChange}
-                className={styles.formInput}
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="visaStatus" className={styles.formLabel}>{t.visaStatus || "Status"}</label>
-              <input
-                type="text"
-                id="visaStatus"
-                name="visaStatus"
-                value={formData.visaStatus}
-                onChange={handleChange}
-                className={styles.formInput}
-              />
-            </div>
-          </div>
+        
           
           {/* 액션 버튼 */}
           <div className={styles.actionButtons}>
@@ -341,6 +339,45 @@ export default function EditProfilePage() {
             </button>
           </div>
         </form>
+
+        {/* 계정 삭제 섹션 */}
+        <div className={styles.dangerZone}>
+          
+          <p>{t.deleteAccountWarning || "Once you delete your account, there is no going back. Please be certain."}</p>
+          <button 
+            onClick={showDeleteModal}
+            className={styles.deleteButton}
+          >
+            {t.deleteAccount || "Delete Account"}
+          </button>
+        </div>
+
+        {/* 계정 삭제 확인 모달 */}
+        {showDeleteConfirm && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <h3 className={styles.modalTitle}>{t.confirmDeletion || "Confirm Account Deletion"}</h3>
+              <p className={styles.modalText}>{t.deletionWarning || "This action cannot be undone. All your data will be permanently deleted."}</p>
+              
+              <div className={styles.modalButtons}>
+                <button 
+                  onClick={hideDeleteModal}
+                  className={styles.cancelButton}
+                  disabled={isDeleting}
+                >
+                  {t.cancel || "Cancel"}
+                </button>
+                <button 
+                  onClick={handleDeleteAccount}
+                  className={styles.confirmDeleteButton}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (t.deleting || "Deleting...") : (t.confirmDelete || "Yes, Delete My Account")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

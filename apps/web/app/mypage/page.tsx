@@ -1,55 +1,50 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { LanguageContext } from "../client-layout";
 import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
+import { authApi, usersApi } from "api";
 
-// 테스트용 사용자 데이터
-const mockUser = {
-  username: "김호주",
-  email: "kim@example.com",
-  memberSince: "2025-01-15",
-  profileImage: null,
-  state: "NSW", // 거주 주 정보 추가
-  visaInfo: {
-    type: "Working Holiday (417)",
-    startDate: "2025-01-20",
-    endDate: "2026-01-19",
-    status: "Active",
-    remainingDays: 163,
-    totalDays: 365,
-    percentComplete: 55,
-  },
-  activities: [
-    {
-      id: 1,
-      type: "community",
-      text: "커뮤니티에 새 글을 작성했습니다.",
-      link: "/community/1",
-      time: "2시간 전",
-      icon: "chatbubble",
-    },
-    {
-      id: 2,
-      type: "visa",
-      text: "비자 정보를 업데이트했습니다.",
-      link: "/visa",
-      time: "3일 전",
-      icon: "document-text",
-    },
-    {
-      id: 3,
-      type: "location",
-      text: "새 주소를 등록했습니다: 시드니 CBD",
-      link: "/postcode-finder",
-      time: "1주일 전",
-      icon: "map",
-    },
-  ],
+// 테스트용 사용자 데이터 (비자 정보만 임시로 유지)
+const mockVisaInfo = {
+  type: "Working Holiday (417)",
+  startDate: "2025-01-20",
+  endDate: "2026-01-19",
+  status: "Active",
+  remainingDays: 163,
+  totalDays: 365,
+  percentComplete: 55,
 };
+
+const mockActivities = [
+  {
+    id: 1,
+    type: "community",
+    text: "커뮤니티에 새 글을 작성했습니다.",
+    link: "/community/1",
+    time: "2시간 전",
+    icon: "chatbubble",
+  },
+  {
+    id: 2,
+    type: "visa",
+    text: "비자 정보를 업데이트했습니다.",
+    link: "/visa",
+    time: "3일 전",
+    icon: "document-text",
+  },
+  {
+    id: 3,
+    type: "location",
+    text: "새 주소를 등록했습니다: 시드니 CBD",
+    link: "/postcode-finder",
+    time: "1주일 전",
+    icon: "map",
+  },
+];
 
 export default function MyPage() {
   // 글로벌 언어 컨텍스트 사용
@@ -58,6 +53,35 @@ export default function MyPage() {
   const { user, isAuthenticated, isLoading, signOut } = useAuth(); // 인증 컨텍스트 사용
   const [showLogoutModal, setShowLogoutModal] = useState(false); // 로그아웃 모달 상태
   const [logoutLoading, setLogoutLoading] = useState(false); // 로그아웃 로딩 상태
+  const [userProfile, setUserProfile] = useState({
+    username: '',
+    email: '',
+    state: '',
+    profileImage: null
+  });
+  
+  // 클라이언트 사이드 렌더링 확인을 위한 상태
+  const [isClient, setIsClient] = useState(false);
+  
+  // 클라이언트 사이드 렌더링 여부 확인
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // 유저 프로필 정보 가져오기
+  useEffect(() => {
+    if (user) {
+      // 사용자 메타데이터에서 nickname과 state 가져오기
+      const metadata = user.user_metadata || {};
+      
+      setUserProfile({
+        username: metadata.nickname || 'User',
+        email: user.email || '',
+        state: metadata.state || 'Not specified',
+        profileImage: null // 프로필 이미지는 나중에 구현
+      });
+    }
+  }, [user]);
   
   // 수정 페이지로 이동하는 함수
   const handleEditClick = () => {
@@ -76,21 +100,18 @@ export default function MyPage() {
   
   // 로그아웃 처리 함수
   const handleLogout = async () => {
-    setLogoutLoading(true);
     try {
-      const { error } = await signOut();
-      if (error) {
-        console.error("Logout error:", error);
-        alert(language === 'ko' ? "로그아웃 중 오류가 발생했습니다." : "Error during logout.");
-      } else {
-        router.push("/auth/login");
-      }
-    } catch (err) {
-      console.error("Logout error:", err);
-      alert(language === 'ko' ? "로그아웃 중 오류가 발생했습니다." : "Error during logout.");
-    } finally {
+      setLogoutLoading(true);
+      
+      // 로그아웃 처리
+      await signOut();
+      
+      // 로그아웃 성공 시 홈으로 리다이렉트
+      router.push("/");
+    } catch (error) {
+      console.error("로그아웃 오류:", error);
       setLogoutLoading(false);
-      hideLogoutModal();
+      setShowLogoutModal(false);
     }
   };
 
@@ -120,6 +141,7 @@ export default function MyPage() {
       off: "꺼짐",
       manage: "관리",
       download: "Download",
+      loading: "로딩 중...",
     },
     en: {
       myPage: "My Page",
@@ -146,6 +168,7 @@ export default function MyPage() {
       off: "Off",
       manage: "Manage",
       download: "Download",
+      loading: "Loading...",
     }
   };
 
@@ -153,7 +176,15 @@ export default function MyPage() {
   const t = language === "ko" ? translations.ko : translations.en;
 
   // 비자 진행 바 너비 계산
-  const progressWidth = `${mockUser.visaInfo.percentComplete}%`;
+  const progressWidth = `${mockVisaInfo.percentComplete}%`;
+
+  if (!isClient) {
+    return <div className={styles.pageWrapper}>{t.loading}</div>;
+  }
+
+  if (isLoading) {
+    return <div className={styles.pageWrapper}>{t.loading}</div>;
+  }
 
   return (
     <div className={styles.pageWrapper}>
@@ -161,17 +192,17 @@ export default function MyPage() {
         {/* 프로필 섹션 */}
         <div className={styles.profileSection}>
           <div className={styles.profileImage}>
-            {mockUser.profileImage ? (
-              <img src={mockUser.profileImage} alt="Profile" />
+            {userProfile.profileImage ? (
+              <img src={userProfile.profileImage} alt="Profile" />
             ) : (
               <span>👤</span>
             )}
           </div>
           <div className={styles.profileInfo}>
-            <h1 className={styles.username}>{mockUser.username}</h1>
-            <p className={styles.email}>{user?.email || mockUser.email}</p>
+            <h1 className={styles.username}>{userProfile.username}</h1>
+            <p className={styles.email}>{userProfile.email}</p>
             <p className={styles.state}>
-              {t.state || "State"}: {mockUser.state || "Not specified"}
+              {t.state || "State"}: {userProfile.state}
             </p>
           </div>
           <button onClick={handleEditClick} className={styles.editButton}>
@@ -190,28 +221,28 @@ export default function MyPage() {
           <div className={styles.visaInfo}>
             <div className={styles.visaDetail}>
               <p className={styles.visaLabel}>{t.visaType || "Visa Type"}</p>
-              <p className={styles.visaValue}>{mockUser.visaInfo.type}</p>
+              <p className={styles.visaValue}>{mockVisaInfo.type}</p>
             </div>
             
             <div className={styles.visaDetail}>
               <p className={styles.visaLabel}>{t.visaStatus || "Visa Status"}</p>
-              <p className={styles.visaValue}>{mockUser.visaInfo.status}</p>
+              <p className={styles.visaValue}>{mockVisaInfo.status}</p>
             </div>
             
             <div className={styles.visaDetail}>
               <p className={styles.visaLabel}>{t.visaStartDate || "Visa Start Date"}</p>
-              <p className={styles.visaValue}>{mockUser.visaInfo.startDate}</p>
+              <p className={styles.visaValue}>{mockVisaInfo.startDate}</p>
             </div>
             
             <div className={styles.visaDetail}>
               <p className={styles.visaLabel}>{t.visaEndDate || "Visa End Date"}</p>
-              <p className={styles.visaValue}>{mockUser.visaInfo.endDate}</p>
+              <p className={styles.visaValue}>{mockVisaInfo.endDate}</p>
             </div>
             
             <div className={styles.visaDetail}>
               <p className={styles.visaLabel}>{t.daysRemaining || "Days Remaining"}</p>
               <p className={styles.visaValue}>
-                {mockUser.visaInfo.remainingDays} {t.days || "days"}
+                {mockVisaInfo.remainingDays} {t.days || "days"}
               </p>
             </div>
           </div>
@@ -221,7 +252,7 @@ export default function MyPage() {
         <div className={styles.cardSection}>
           <h2 className={styles.sectionTitle}>{t.recentActivities || "Recent Activities"}</h2>
           <div className={styles.activityList}>
-            {mockUser.activities.map((activity) => (
+            {mockActivities.map((activity) => (
               <div key={activity.id} className={styles.activityItem}>
                 <div className={styles.activityIcon}>
                   {activity.icon === 'document-text' ? '📄' : 
