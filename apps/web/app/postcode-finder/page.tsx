@@ -869,7 +869,7 @@ export default function PostcodeFinderPage() {
                 <input
                   type="text"
                   className={styles.searchInput}
-                  placeholder={t.searchPlaceholder}
+                  placeholder={t?.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}

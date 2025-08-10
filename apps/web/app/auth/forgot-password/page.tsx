@@ -100,7 +100,7 @@ export default function ForgotPassword() {
         
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="email">{t.email || "Email"}</label>
+            <label htmlFor="email">{t??.email || "Email"}</label>
             <input
               id="email"
               type="email"
@@ -124,7 +124,7 @@ export default function ForgotPassword() {
         
         <div className={styles.signUpLink} style={{ marginTop: '1.5rem' }}>
           <Link href="/auth/login" className={styles.forgotPassword}>
-            {t.backToLogin || "Back to Login"}
+            {t??.backToLogin || "Back to Login"}
           </Link>
         </div>
       </div>
