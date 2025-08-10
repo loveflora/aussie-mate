@@ -48,7 +48,7 @@ export default function ForgotPassword() {
     if (!emailRegex.test(email)) {
       setMessage({
         type: "error",
-        text: t.invalidEmail || "Invalid email"
+        text: t?.invalidEmail || "Invalid email"
       });
       return;
     }
@@ -62,12 +62,12 @@ export default function ForgotPassword() {
       if (error) {
         setMessage({
           type: "error",
-          text: error.message || t.resetError || "An error occurred while sending the reset link."
+          text: error.message || t?.resetError || "An error occurred while sending the reset link."
         });
       } else {
         setMessage({
           type: "success",
-          text: t.successMessage || "Password reset link has been sent to your email address. Please check your inbox."
+          text: t?.successMessage || "Password reset link has been sent to your email address. Please check your inbox."
         });
         
         // Clear the email input after successful submission
@@ -76,7 +76,7 @@ export default function ForgotPassword() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: t.resetError || "An error occurred while sending the reset link."
+        text: t?.resetError || "An error occurred while sending the reset link."
       });
     } finally {
       setIsLoading(false);
@@ -86,7 +86,7 @@ export default function ForgotPassword() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginForm}>
-        <h1 className={styles.title}>{t.title || "Forgot Password"}</h1>
+        <h1 className={styles.title}>{t?.title || "Forgot Password"}</h1>
         
         {message && (
           <div className={
@@ -118,7 +118,7 @@ export default function ForgotPassword() {
             disabled={isLoading || message?.type === 'success'}
             className={styles.loginButton}
           >
-            {isLoading ? (t.loading || "Processing...") : (t.resetButton || "Send Reset Link")}
+            {isLoading ? (t?.loading || "Processing...") : (t?.resetButton || "Send Reset Link")}
           </button>
         </form>
         
