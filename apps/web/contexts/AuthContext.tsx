@@ -10,7 +10,7 @@ type AuthContextType = {
   isLoading: boolean;
   isAuthenticated: boolean;
   signIn: (email: string, password: string) => Promise<any>;
-  signUp: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, metadata?: { state?: string }) => Promise<any>;
   signOut: () => Promise<any>;
   signInWithProvider: (provider: Provider) => Promise<any>;
   resetPassword: (email: string) => Promise<any>;
@@ -88,10 +88,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, metadata?: { state?: string }) => {
     setIsLoading(true);
     try {
-      const result = await authApi.signUp(email, password);
+      const result = await authApi.signUp(email, password, metadata);
       return result;
     } catch (error) {
       console.error("Sign up error:", error);

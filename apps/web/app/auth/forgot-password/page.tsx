@@ -16,7 +16,7 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState<{ type: "error" | "success" | "info", text: string } | null>(null);
   
   // Translations
-  const t = {
+  const translations = {
     ko: {
       title: "비밀번호 재설정 요청",
       email: "이메일",
@@ -35,7 +35,10 @@ export default function ForgotPassword() {
       resetError: "An error occurred while sending the reset link.",
       backToLogin: "Back to Login"
     }
-  }[language];
+  };
+
+  // 현재 언어에 맞는 번역 선택
+  const t = language === "ko" ? translations.ko : translations.en;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +48,7 @@ export default function ForgotPassword() {
     if (!emailRegex.test(email)) {
       setMessage({
         type: "error",
-        text: t?.invalidEmail || "Invalid email"
+        text: t.invalidEmail || "Invalid email"
       });
       return;
     }
@@ -59,12 +62,12 @@ export default function ForgotPassword() {
       if (error) {
         setMessage({
           type: "error",
-          text: error.message || t?.resetError || "An error occurred while sending the reset link."
+          text: error.message || t.resetError || "An error occurred while sending the reset link."
         });
       } else {
         setMessage({
           type: "success",
-          text: t?.successMessage || "Password reset link has been sent to your email address. Please check your inbox."
+          text: t.successMessage || "Password reset link has been sent to your email address. Please check your inbox."
         });
         
         // Clear the email input after successful submission
@@ -73,7 +76,7 @@ export default function ForgotPassword() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: t?.resetError || "An error occurred while sending the reset link."
+        text: t.resetError || "An error occurred while sending the reset link."
       });
     } finally {
       setIsLoading(false);
@@ -83,7 +86,7 @@ export default function ForgotPassword() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginForm}>
-        <h1 className={styles.title}>{t?.title || "Forgot Password"}</h1>
+        <h1 className={styles.title}>{t.title || "Forgot Password"}</h1>
         
         {message && (
           <div className={
@@ -97,7 +100,7 @@ export default function ForgotPassword() {
         
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="email">{t?.email || "Email"}</label>
+            <label htmlFor="email">{t.email || "Email"}</label>
             <input
               id="email"
               type="email"
@@ -115,13 +118,13 @@ export default function ForgotPassword() {
             disabled={isLoading || message?.type === 'success'}
             className={styles.loginButton}
           >
-            {isLoading ? "처리 중..." : t?.resetButton || "Send Reset Link"}
+            {isLoading ? (t.loading || "Processing...") : (t.resetButton || "Send Reset Link")}
           </button>
         </form>
         
         <div className={styles.signUpLink} style={{ marginTop: '1.5rem' }}>
           <Link href="/auth/login" className={styles.forgotPassword}>
-            {t?.backToLogin || "Back to Login"}
+            {t.backToLogin || "Back to Login"}
           </Link>
         </div>
       </div>

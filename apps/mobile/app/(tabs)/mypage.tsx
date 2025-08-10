@@ -70,7 +70,6 @@ export default function MyPageScreen() {
       myPage: "마이페이지",
       profile: "프로필",
       edit: "수정",
-      memberSince: "가입일",
       visaInformation: "비자 정보",
       visaType: "비자 종류",
       visaStartDate: "시작일",

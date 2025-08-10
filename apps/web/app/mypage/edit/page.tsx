@@ -12,6 +12,7 @@ const mockUser = {
   email: "kim@example.com",
   memberSince: "2025-01-15",
   profileImage: null,
+  state: "NSW", // 호주 주(State) 정보 추가
   visaInfo: {
     type: "Working Holiday (417)",
     startDate: "2025-01-20",
@@ -36,6 +37,8 @@ export default function EditProfilePage() {
       removeImage: "이미지 제거",
       username: "이름",
       email: "이메일",
+      state: "거주 지역(주)", // 한국어 번역 추가
+      statePlaceholder: "거주 중인 호주 주를 선택해주세요",
       visaInfo: "비자 정보",
       visaType: "비자 종류",
       visaStartDate: "시작일",
@@ -56,6 +59,8 @@ export default function EditProfilePage() {
       removeImage: "Remove Image",
       username: "Name",
       email: "Email",
+      state: "Residential State", // 영어 번역 추가
+      statePlaceholder: "Select your Australian state",
       visaInfo: "Visa Information",
       visaType: "Visa Type",
       visaStartDate: "Start Date",
@@ -70,12 +75,13 @@ export default function EditProfilePage() {
   };
 
   // 현재 언어에 맞는 번역 선택
-  const t = translations[language];
+  const t = language === "ko" ? translations.ko : translations.en;
 
   // 폼 상태
   const [formData, setFormData] = useState({
     username: mockUser.username,
     email: mockUser.email,
+    state: mockUser.state || "", // 주(State) 상태 추가
     visaType: mockUser.visaInfo.type,
     visaStartDate: mockUser.visaInfo.startDate,
     visaEndDate: mockUser.visaInfo.endDate,
@@ -99,7 +105,7 @@ export default function EditProfilePage() {
     
     // 실시간 유효성 검사
     if (name === "username" && !value.trim()) {
-      setErrors(prev => ({ ...prev, username: t.requiredField }));
+      setErrors(prev => ({ ...prev, username: t.requiredField || "This field is required" }));
     } else if (name === "username" && value.trim()) {
       setErrors(prev => ({ ...prev, username: "" }));
     }
@@ -107,9 +113,9 @@ export default function EditProfilePage() {
     if (name === "email") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!value.trim()) {
-        setErrors(prev => ({ ...prev, email: t.requiredField }));
+        setErrors(prev => ({ ...prev, email: t.requiredField || "This field is required" }));
       } else if (!emailRegex.test(value)) {
-        setErrors(prev => ({ ...prev, email: t.invalidEmail }));
+        setErrors(prev => ({ ...prev, email: t.invalidEmail || "Please enter a valid email address" }));
       } else {
         setErrors(prev => ({ ...prev, email: "" }));
       }
@@ -140,33 +146,39 @@ export default function EditProfilePage() {
     e.preventDefault();
     
     // 유효성 검사
-    let isValid = true;
-    const newErrors = { username: "", email: "" };
+    const newErrors = {
+      username: !formData.username.trim() ? (t.requiredField || "This field is required") : "",
+      email: !formData.email.trim() ? (t.requiredField || "This field is required") : "",
+    };
     
-    if (!formData.username.trim()) {
-      newErrors.username = t.requiredField;
-      isValid = false;
-    }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      newErrors.email = t.requiredField;
-      isValid = false;
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = t.invalidEmail;
-      isValid = false;
+    // 이메일 유효성 검사
+    if (formData.email.trim() && !(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).test(formData.email)) {
+      newErrors.email = t.invalidEmail || "Please enter a valid email address";
     }
     
     setErrors(newErrors);
     
-    if (isValid) {
-      // 실제로는 여기서 API 호출을 통해 데이터를 저장해야 함
-      console.log("Saving profile:", formData);
-      
-      // 성공 시 사용자를 마이페이지로 리다이렉트
-      alert(t.updateSuccess);
-      router.push("/mypage");
+    // 오류가 있으면 제출하지 않음
+    if (newErrors.username || newErrors.email) {
+      return;
     }
+    
+    // API 호출 (실제 구현 필요)
+    // TODO: 여기서 실제 API 호출을 통해 프로필 업데이트
+    console.log("프로필 업데이트:", {
+      username: formData.username,
+      email: formData.email,
+      state: formData.state, // state 정보 저장
+      visaType: formData.visaType,
+      visaStartDate: formData.visaStartDate,
+      visaEndDate: formData.visaEndDate,
+      visaStatus: formData.visaStatus,
+      profileImage: formData.profileImage,
+    });
+    
+    // 성공 메시지 표시 후 마이페이지로 리디렉션
+    alert(t.updateSuccess || "Your profile has been successfully updated");
+    router.push('/mypage');
   };
 
   return (
@@ -174,9 +186,9 @@ export default function EditProfilePage() {
       <div className={styles.container}>
         {/* 페이지 헤더 */}
         <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>{t.editProfile}</h1>
-          <Link href="/mypage" className={styles.backButton}>
-            ← {t.back}
+          <h1 className={styles.pageTitle}>{t.editProfile || "Edit Profile"}</h1>
+          <Link href="/mypage" className={styles.backLink}>
+            ← {t.back || "Back"}
           </Link>
         </div>
         
@@ -184,7 +196,7 @@ export default function EditProfilePage() {
         <form onSubmit={handleSubmit}>
           {/* 프로필 이미지 섹션 */}
           <div className={styles.formSection}>
-            <h2 className={styles.formTitle}>{t.profilePicture}</h2>
+            <h2 className={styles.formTitle}>{t.profilePicture || "Profile Picture"}</h2>
             <div className={styles.imageUploadSection}>
               <div className={styles.profileImagePreview}>
                 {imagePreview || formData.profileImage ? (
@@ -195,7 +207,7 @@ export default function EditProfilePage() {
               </div>
               <div className={styles.imageUploadControls}>
                 <label className={styles.uploadButton}>
-                  {t.upload}
+                  {t.upload || "Upload"}
                   <input 
                     type="file" 
                     accept="image/*" 
@@ -209,7 +221,7 @@ export default function EditProfilePage() {
                     className={styles.removeImageButton}
                     onClick={handleRemoveImage}
                   >
-                    {t.removeImage}
+                    {t.removeImage || "Remove Image"}
                   </button>
                 )}
               </div>
@@ -218,9 +230,9 @@ export default function EditProfilePage() {
           
           {/* 개인 정보 섹션 */}
           <div className={styles.formSection}>
-            <h2 className={styles.formTitle}>{t.personalInfo}</h2>
+            <h2 className={styles.formTitle}>{t.personalInfo || "Personal Information"}</h2>
             <div className={styles.formGroup}>
-              <label htmlFor="username" className={styles.formLabel}>{t.username}</label>
+              <label htmlFor="username" className={styles.formLabel}>{t.username || "Name"}</label>
               <input
                 type="text"
                 id="username"
@@ -233,7 +245,7 @@ export default function EditProfilePage() {
             </div>
             
             <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.formLabel}>{t.email}</label>
+              <label htmlFor="email" className={styles.formLabel}>{t.email || "Email"}</label>
               <input
                 type="email"
                 id="email"
@@ -244,13 +256,34 @@ export default function EditProfilePage() {
               />
               {errors.email && <p className={styles.errorMessage}>{errors.email}</p>}
             </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="state" className={styles.formLabel}>{t.state || "Residential State"}</label>
+              <select
+                id="state"
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                className={styles.formInput}
+              >
+                <option value="">{t.statePlaceholder || "Select your Australian state"}</option>
+                <option value="NSW">New South Wales (NSW)</option>
+                <option value="VIC">Victoria (VIC)</option>
+                <option value="QLD">Queensland (QLD)</option>
+                <option value="SA">South Australia (SA)</option>
+                <option value="WA">Western Australia (WA)</option>
+                <option value="TAS">Tasmania (TAS)</option>
+                <option value="NT">Northern Territory (NT)</option>
+                <option value="ACT">Australian Capital Territory (ACT)</option>
+              </select>
+            </div>
           </div>
           
           {/* 비자 정보 섹션 */}
           <div className={styles.formSection}>
-            <h2 className={styles.formTitle}>{t.visaInfo}</h2>
+            <h2 className={styles.formTitle}>{t.visaInfo || "Visa Information"}</h2>
             <div className={styles.formGroup}>
-              <label htmlFor="visaType" className={styles.formLabel}>{t.visaType}</label>
+              <label htmlFor="visaType" className={styles.formLabel}>{t.visaType || "Visa Type"}</label>
               <input
                 type="text"
                 id="visaType"
@@ -262,7 +295,7 @@ export default function EditProfilePage() {
             </div>
             
             <div className={styles.formGroup}>
-              <label htmlFor="visaStartDate" className={styles.formLabel}>{t.visaStartDate}</label>
+              <label htmlFor="visaStartDate" className={styles.formLabel}>{t.visaStartDate || "Start Date"}</label>
               <input
                 type="date"
                 id="visaStartDate"
@@ -274,7 +307,7 @@ export default function EditProfilePage() {
             </div>
             
             <div className={styles.formGroup}>
-              <label htmlFor="visaEndDate" className={styles.formLabel}>{t.visaEndDate}</label>
+              <label htmlFor="visaEndDate" className={styles.formLabel}>{t.visaEndDate || "End Date"}</label>
               <input
                 type="date"
                 id="visaEndDate"
@@ -286,7 +319,7 @@ export default function EditProfilePage() {
             </div>
             
             <div className={styles.formGroup}>
-              <label htmlFor="visaStatus" className={styles.formLabel}>{t.visaStatus}</label>
+              <label htmlFor="visaStatus" className={styles.formLabel}>{t.visaStatus || "Status"}</label>
               <input
                 type="text"
                 id="visaStatus"
@@ -301,10 +334,10 @@ export default function EditProfilePage() {
           {/* 액션 버튼 */}
           <div className={styles.actionButtons}>
             <Link href="/mypage" className={styles.cancelButton}>
-              {t.cancel}
+              {t.cancel || "Cancel"}
             </Link>
             <button type="submit" className={styles.saveButton}>
-              {t.save}
+              {t.save || "Save"}
             </button>
           </div>
         </form>

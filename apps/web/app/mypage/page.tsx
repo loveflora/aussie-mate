@@ -13,6 +13,7 @@ const mockUser = {
   email: "kim@example.com",
   memberSince: "2025-01-15",
   profileImage: null,
+  state: "NSW", // 거주 주 정보 추가
   visaInfo: {
     type: "Working Holiday (417)",
     startDate: "2025-01-20",
@@ -99,7 +100,7 @@ export default function MyPage() {
       myPage: "마이페이지",
       profile: "프로필",
       edit: "수정",
-      memberSince: "가입일",
+      state: "거주 지역", // 한국어 번역 추가
       visaInformation: "비자 정보",
       visaType: "비자 종류",
       visaStartDate: "시작일",
@@ -125,6 +126,7 @@ export default function MyPage() {
       profile: "Profile",
       edit: "Edit",
       memberSince: "Member since",
+      state: "Residential State", // 영어 번역 추가
       visaInformation: "Visa Information",
       visaType: "Visa Type",
       visaStartDate: "Start Date",
@@ -149,7 +151,7 @@ export default function MyPage() {
   };
 
   // 현재 언어에 맞는 번역 선택
-  const t = translations[language];
+  const t = language === "ko" ? translations.ko : translations.en;
 
   // 비자 진행 바 너비 계산
   const progressWidth = `${mockUser.visaInfo.percentComplete}%`;
@@ -169,18 +171,18 @@ export default function MyPage() {
           <div className={styles.profileInfo}>
             <h1 className={styles.username}>{mockUser.username}</h1>
             <p className={styles.email}>{user?.email || mockUser.email}</p>
-            <p className={styles.memberSince}>
-              {t.memberSince}: {mockUser.memberSince}
+            <p className={styles.state}>
+              {t.state || "State"}: {mockUser.state || "Not specified"}
             </p>
           </div>
           <button onClick={handleEditClick} className={styles.editButton}>
-            {t.edit}
+            {t.edit || "Edit"}
           </button>
         </div>
 
         {/* 비자 정보 섹션 */}
         <div className={styles.cardSection}>
-          <h2 className={styles.sectionTitle}>{t.visaInformation}</h2>
+          <h2 className={styles.sectionTitle}>{t.visaInformation || "Visa Information"}</h2>
           
           <div className={styles.progressBarContainer}>
             <div className={styles.progressBar} style={{ width: progressWidth }}></div>
@@ -188,29 +190,29 @@ export default function MyPage() {
           
           <div className={styles.visaInfo}>
             <div className={styles.visaDetail}>
-              <p className={styles.visaLabel}>{t.visaType}</p>
+              <p className={styles.visaLabel}>{t.visaType || "Visa Type"}</p>
               <p className={styles.visaValue}>{mockUser.visaInfo.type}</p>
             </div>
             
             <div className={styles.visaDetail}>
-              <p className={styles.visaLabel}>{t.visaStatus}</p>
+              <p className={styles.visaLabel}>{t.visaStatus || "Visa Status"}</p>
               <p className={styles.visaValue}>{mockUser.visaInfo.status}</p>
             </div>
             
             <div className={styles.visaDetail}>
-              <p className={styles.visaLabel}>{t.visaStartDate}</p>
+              <p className={styles.visaLabel}>{t.visaStartDate || "Visa Start Date"}</p>
               <p className={styles.visaValue}>{mockUser.visaInfo.startDate}</p>
             </div>
             
             <div className={styles.visaDetail}>
-              <p className={styles.visaLabel}>{t.visaEndDate}</p>
+              <p className={styles.visaLabel}>{t.visaEndDate || "Visa End Date"}</p>
               <p className={styles.visaValue}>{mockUser.visaInfo.endDate}</p>
             </div>
             
             <div className={styles.visaDetail}>
-              <p className={styles.visaLabel}>{t.daysRemaining}</p>
+              <p className={styles.visaLabel}>{t.daysRemaining || "Days Remaining"}</p>
               <p className={styles.visaValue}>
-                {mockUser.visaInfo.remainingDays} {t.days}
+                {mockUser.visaInfo.remainingDays} {t.days || "days"}
               </p>
             </div>
           </div>
@@ -218,7 +220,7 @@ export default function MyPage() {
 
         {/* 활동 내역 섹션 */}
         <div className={styles.cardSection}>
-          <h2 className={styles.sectionTitle}>{t.recentActivities}</h2>
+          <h2 className={styles.sectionTitle}>{t.recentActivities || "Recent Activities"}</h2>
           <div className={styles.activityList}>
             {mockUser.activities.map((activity) => (
               <div key={activity.id} className={styles.activityItem}>
@@ -237,31 +239,31 @@ export default function MyPage() {
 
         {/* 설정 섹션 */}
         <div className={styles.cardSection}>
-          <h2 className={styles.sectionTitle}>{t.settings}</h2>
+          <h2 className={styles.sectionTitle}>{t.settings || "Settings"}</h2>
           <div className={styles.settingsList}>
             <div className={styles.settingItem}>
-              <span className={styles.settingLabel}>{t.notifications}</span>
-              <span className={styles.settingAction}>{t.on}</span>
+              <span className={styles.settingLabel}>{t.notifications || "Notifications"}</span>
+              <span className={styles.settingAction}>{t.on || "On"}</span>
             </div>
             
             <div className={styles.settingItem}>
-              <span className={styles.settingLabel}>{t.language}</span>
+              <span className={styles.settingLabel}>{t.language || "Language"}</span>
               <span className={styles.settingAction}>{language === 'ko' ? '한국어' : 'English'}</span>
             </div>
             
             <div className={styles.settingItem}>
-              <span className={styles.settingLabel}>{t.darkMode}</span>
-              <span className={styles.settingAction}>{t.off}</span>
+              <span className={styles.settingLabel}>{t.darkMode || "Dark Mode"}</span>
+              <span className={styles.settingAction}>{t.off || "Off"}</span>
             </div>
             
             <div className={styles.settingItem}>
-              <span className={styles.settingLabel}>{t.privacySettings}</span>
-              <span className={styles.settingAction}>{t.manage}</span>
+              <span className={styles.settingLabel}>{t.privacySettings || "Privacy Settings"}</span>
+              <span className={styles.settingAction}>{t.manage || "Manage"}</span>
             </div>
             
             <div className={styles.settingItem}>
-              <span className={styles.settingLabel}>{t.dataManagement}</span>
-              <span className={styles.settingAction}>{t.download}</span>
+              <span className={styles.settingLabel}>{t.dataManagement || "Data Management"}</span>
+              <span className={styles.settingAction}>{t.download || "Download"}</span>
             </div>
           </div>
           
@@ -269,7 +271,7 @@ export default function MyPage() {
             onClick={showLogoutConfirmation} 
             className={styles.logoutButton}
           >
-            {t.logout}
+            {t.logout || "Log Out"}
           </button>
         </div>
       </div>

@@ -17,6 +17,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [state, setState] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifyingSending, setIsVerifyingSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,12 +27,14 @@ export default function SignUp() {
   const [verifySuccess, setVerifySuccess] = useState(false);
 
   // Translations
-  const t = {
+  const translations = {
     ko: {
       title: "회원가입",
       email: "이메일",
       password: "비밀번호",
       confirmPassword: "비밀번호 확인",
+      state: "거주 지역(주)",
+      statePlaceholder: "거주 중인 호주 주를 선택해주세요",
       signUpButton: "가입하기",
       verifyButton: "이메일 인증하기",
       verified: "인증 완료",
@@ -52,6 +55,8 @@ export default function SignUp() {
       email: "Email",
       password: "Password",
       confirmPassword: "Confirm Password",
+      state: "Residential State",
+      statePlaceholder: "Select your Australian state",
       signUpButton: "Sign Up",
       verifyButton: "Verify Email",
       verified: "Verified",
@@ -67,7 +72,9 @@ export default function SignUp() {
       or: "OR",
       login: "Already have an account? Log in"
     }
-  }[language];
+  };
+
+  const t = language === "ko" ? translations.ko : translations.en;
 
   // 페이지 로드 시 URL 파라미터 체크
   useEffect(() => {
@@ -79,7 +86,7 @@ export default function SignUp() {
       setIsEmailVerified(true);
       setVerifyMessage({
         type: "success",
-        text: t.verifyComplete
+        text: t.verifyComplete || "Email verification complete."
       });
     }
     
@@ -90,7 +97,7 @@ export default function SignUp() {
         setIsEmailVerified(true);
         setVerifyMessage({
           type: "success",
-          text: t.verifyComplete
+          text: t.verifyComplete || "Email verification complete."
         });
       }
     };
@@ -107,20 +114,20 @@ export default function SignUp() {
     
     // 이메일 인증 확인
     if (!isEmailVerified) {
-      setError(t.verifyRequired);
+      setError(t.verifyRequired || "Please verify your email first.");
       return;
     }
     
     // Check if passwords match
     if (password !== confirmPassword) {
-      setError(t.passwordMismatch);
+      setError(t.passwordMismatch || "Passwords do not match.");
       return;
     }
     
     setIsLoading(true);
     
     try {
-      const { error } = await signUp(email, password);
+      const { error } = await signUp(email, password, { state });
       
       if (error) {
         setError(error.message);
@@ -176,7 +183,7 @@ export default function SignUp() {
         // 이미 가입된 이메일인 경우 오류를 표시하는 대신 메시지로 알림
         setVerifyMessage({ 
           type: "info", 
-          text: t.emailExists 
+          text: t.emailExists || "This email is already registered."
         });
         return;
       }
@@ -185,16 +192,16 @@ export default function SignUp() {
       const { error } = await authApi.sendEmailVerification(email);
       
       if (error) {
-        setError(error.message || t.verifyError);
-        setVerifyMessage({ type: "error", text: t.verifyError });
+        setError(error.message || t.verifyError || "Error sending verification email.");
+        setVerifyMessage({ type: "error", text: t.verifyError || "Error sending verification email." });
       } else {
-        setVerifyMessage({ type: "success", text: t.verifySuccess });
+        setVerifyMessage({ type: "success", text: t.verifySuccess || "Verification email sent. Please check your inbox." });
         // 3초 후 성공 메시지 숨김
         setTimeout(() => setVerifyMessage(null), 3000);
       }
     } catch (error: any) {
-      setError(error.message || t.verifyError);
-      setVerifyMessage({ type: "error", text: t.verifyError });
+      setError(error.message || t.verifyError || "Error sending verification email.");
+      setVerifyMessage({ type: "error", text: t.verifyError || "Error sending verification email." });
     } finally {
       setIsVerifyingSending(false);
     }
@@ -203,7 +210,7 @@ export default function SignUp() {
   return (
     <div className={styles.signupContainer}>
       <div className={styles.signupForm}>
-        <h1 className={styles.title}>{t.title}</h1>
+        <h1 className={styles.title}>{t.title || "Sign Up"}</h1>
         
         {error && (
           <div className={styles.errorMessage}>
@@ -223,7 +230,7 @@ export default function SignUp() {
         
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="email">{t.email}</label>
+            <label htmlFor="email">{t.email || "Email"}</label>
             <div className={styles.emailVerifyGroup}>
               <input
                 id="email"
@@ -243,7 +250,7 @@ export default function SignUp() {
               />
               {isEmailVerified ? (
                 <span className={styles.verifiedBadge}>
-                  {t.verified}
+                  {t.verified || "Verified"}
                 </span>
               ) : (
                 <button 
@@ -252,14 +259,14 @@ export default function SignUp() {
                   disabled={isVerifyingSending || !email}
                   className={styles.verifyButton}
                 >
-                  {isVerifyingSending ? "..." : t.verifyButton}
+                  {isVerifyingSending ? "..." : t.verifyButton || "Verify Email"}
                 </button>
               )}
             </div>
           </div>
           
           <div className={styles.formGroup}>
-            <label htmlFor="password">{t.password}</label>
+            <label htmlFor="password">{t.password || "Password"}</label>
             <input
               id="password"
               type="password"
@@ -272,7 +279,7 @@ export default function SignUp() {
           </div>
           
           <div className={styles.formGroup}>
-            <label htmlFor="confirmPassword">{t.confirmPassword}</label>
+            <label htmlFor="confirmPassword">{t.confirmPassword || "Confirm Password"}</label>
             <input
               id="confirmPassword"
               type="password"
@@ -284,17 +291,38 @@ export default function SignUp() {
             />
           </div>
           
+          <div className={styles.formGroup}>
+            <label htmlFor="state">{t.state || "Residential State"}</label>
+            <select
+              id="state"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              disabled={isLoading}
+              className={styles.input}
+            >
+              <option value="">{t.statePlaceholder || "Select your Australian state"}</option>
+              <option value="NSW">New South Wales (NSW)</option>
+              <option value="VIC">Victoria (VIC)</option>
+              <option value="QLD">Queensland (QLD)</option>
+              <option value="SA">South Australia (SA)</option>
+              <option value="WA">Western Australia (WA)</option>
+              <option value="TAS">Tasmania (TAS)</option>
+              <option value="NT">Northern Territory (NT)</option>
+              <option value="ACT">Australian Capital Territory (ACT)</option>
+            </select>
+          </div>
+          
           <button 
             type="submit" 
             disabled={isLoading}
             className={styles.signupButton}
           >
-            {isLoading ? "로딩 중..." : t.signUpButton}
+            {isLoading ? "로딩 중..." : t.signUpButton || "Sign Up"}
           </button>
         </form>
         
         {/* <div className={styles.divider}>
-          <span>{t.or}</span>
+          <span>{t.or || "OR"}</span>
         </div> */}
         
         {/* <div className={styles.socialButtons}>
@@ -309,7 +337,7 @@ export default function SignUp() {
               <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
               <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
             </svg>
-            {t.googleSignUp}
+            {t.googleSignUp || "Sign up with Google"}
           </button>
           
           <button 
@@ -320,7 +348,7 @@ export default function SignUp() {
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
               <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
             </svg>
-            {t.facebookSignUp}
+            {t.facebookSignUp || "Sign up with Facebook"}
           </button>
           
           <button 
@@ -331,13 +359,13 @@ export default function SignUp() {
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 384 512">
               <path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
             </svg>
-            {t.appleSignUp}
+            {t.appleSignUp || "Sign up with Apple"}
           </button>
         </div> */}
         
         <div className={styles.loginLink}>
           <Link href="/auth/login">
-            {t.login}
+            {t.login || "Already have an account? Log in"}
           </Link>
         </div>
       </div>
