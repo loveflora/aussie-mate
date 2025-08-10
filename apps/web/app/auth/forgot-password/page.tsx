@@ -14,9 +14,20 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "error" | "success" | "info", text: string } | null>(null);
+
+  type Translations = {
+    title: string;
+    email: string;
+    resetButton: string;
+    successMessage: string;
+    invalidEmail: string;
+    resetError: string;
+    backToLogin: string;
+    loading?: string; 
+  };
   
   // Translations
-  const translations = {
+  const translations: Translations = {
     ko: {
       title: "비밀번호 재설정 요청",
       email: "이메일",
@@ -100,7 +111,7 @@ export default function ForgotPassword() {
         
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="email">{t??.email || "Email"}</label>
+            <label htmlFor="email">{t?.email || "Email"}</label>
             <input
               id="email"
               type="email"
@@ -124,7 +135,7 @@ export default function ForgotPassword() {
         
         <div className={styles.signUpLink} style={{ marginTop: '1.5rem' }}>
           <Link href="/auth/login" className={styles.forgotPassword}>
-            {t??.backToLogin || "Back to Login"}
+            {t?.backToLogin || "Back to Login"}
           </Link>
         </div>
       </div>
