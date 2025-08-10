@@ -85,7 +85,7 @@ export default function Login() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginForm}>
-        <h1 className={styles.title}>{t.title}</h1>
+        <h1 className={styles.title}>{t?.title}</h1>
         
         {error && (
           <div className={styles.errorMessage}>
@@ -95,7 +95,7 @@ export default function Login() {
         
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="email">{t.email}</label>
+            <label htmlFor="email">{t?.email}</label>
             <input
               id="email"
               type="email"
@@ -108,7 +108,7 @@ export default function Login() {
           </div>
           
           <div className={styles.formGroup}>
-            <label htmlFor="password">{t.password}</label>
+            <label htmlFor="password">{t?.password}</label>
             <input
               id="password"
               type="password"
@@ -129,12 +129,12 @@ export default function Login() {
             disabled={isLoading}
             className={styles.loginButton}
           >
-            {isLoading ? "로딩 중..." : t.loginButton}
+            {isLoading ? "로딩 중..." : t?.loginButton}
           </button>
         </form>
         
         <div className={styles.divider}>
-          <span>{t.or}</span>
+          <span>{t?.or}</span>
         </div>
         
         <div className={styles.socialButtons}>

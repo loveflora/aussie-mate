@@ -64,14 +64,14 @@ export default function ResetPassword() {
 
     setMessage({
       type: "info",
-      text: t.verifyingToken
+      text: t?.verifyingToken
     });
     
     // Here we would typically verify the token validity
     // For now, we'll just assume it's valid if it exists
     setIsTokenValid(true);
     setMessage(null);
-  }, [token, t.invalidToken, t.verifyingToken]);
+  }, [token, t?.invalidToken, t?.verifyingToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,12 +102,12 @@ export default function ResetPassword() {
       if (error) {
         setMessage({
           type: "error",
-          text: error.message || t.resetError
+          text: error?.message || t?.resetError
         });
       } else {
         setMessage({
           type: "success",
-          text: t.success
+          text: t?.success
         });
         
         // Redirect to login page after successful reset
@@ -118,7 +118,7 @@ export default function ResetPassword() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: t.resetError
+        text: t?.resetError
       });
     } finally {
       setIsLoading(false);
@@ -128,7 +128,7 @@ export default function ResetPassword() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginForm}>
-        <h1 className={styles.title}>{t.title}</h1>
+        <h1 className={styles.title}>{t?.title}</h1>
         
         {message && (
           <div className={
@@ -143,7 +143,7 @@ export default function ResetPassword() {
         {isTokenValid && !message?.type?.includes("success") ? (
           <form onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
-              <label htmlFor="password">{t.password}</label>
+              <label htmlFor="password">{t?.password}</label>
               <input
                 id="password"
                 type="password"
@@ -158,7 +158,7 @@ export default function ResetPassword() {
             </div>
             
             <div className={styles.formGroup}>
-              <label htmlFor="confirmPassword">{t.confirmPassword}</label>
+              <label htmlFor="confirmPassword">{t?.confirmPassword}</label>
               <input
                 id="confirmPassword"
                 type="password"
@@ -177,7 +177,7 @@ export default function ResetPassword() {
               disabled={isLoading}
               className={styles.loginButton}
             >
-              {isLoading ? "처리 중..." : t.resetButton}
+              {isLoading ? "처리 중..." : t?.resetButton}
             </button>
           </form>
         ) : (
@@ -190,7 +190,7 @@ export default function ResetPassword() {
               <p style={{ color: '#4CAF50', fontSize: '1.2em', margin: '15px 0' }}>{message.text}</p>
               <div style={{ marginTop: '20px' }}>
                 <Link href="/auth/login" className={styles.loginButton}>
-                  {t.loginLink}
+                  {t?.loginLink}
                 </Link>
               </div>
             </div>

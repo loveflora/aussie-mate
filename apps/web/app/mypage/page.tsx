@@ -140,7 +140,6 @@ export default function MyPage() {
       language: "Language",
       darkMode: "Dark Mode",
       privacySettings: "Privacy Settings",
-      dataManagement: "Data Management",
       deleteAccount: "Delete Account",
       logout: "Log Out",
       on: "On",
@@ -261,10 +260,7 @@ export default function MyPage() {
               <span className={styles.settingAction}>{t.manage || "Manage"}</span>
             </div>
             
-            <div className={styles.settingItem}>
-              <span className={styles.settingLabel}>{t.dataManagement || "Data Management"}</span>
-              <span className={styles.settingAction}>{t.download || "Download"}</span>
-            </div>
+
           </div>
           
           <button 

@@ -107,7 +107,6 @@ export default function MyPageScreen() {
       language: "Language",
       darkMode: "Dark Mode",
       privacySettings: "Privacy Settings",
-      dataManagement: "Data Management",
       deleteAccount: "Delete Account",
       logout: "Log Out",
       on: "On",

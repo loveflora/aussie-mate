@@ -174,14 +174,14 @@ export default function CommunityPage() {
       <div className={styles.postsList}>
         {posts.map(post => (
           <div key={post.id} className={styles.postItem} onClick={() => selectPost(post)}>
-            <h3 className={styles.postTitle}>{post.title}</h3>
-            <p className={styles.postPreview}>{post.content.substring(0, 100)}...</p>
+            <h3 className={styles.postTitle}>{post?.title}</h3>
+            <p className={styles.postPreview}>{post?.content.substring(0, 100)}...</p>
             <div className={styles.postMeta}>
-              <span>{post.author}</span>
+              <span>{post?.author}</span>
               <span>•</span>
-              <span>{post.date}</span>
+              <span>{post?.date}</span>
               <span>•</span>
-              <span>{t.comments}: {post.comments}</span>
+              <span>{t?.comments}: {post?.comments}</span>
             </div>
           </div>
         ))}
@@ -196,25 +196,25 @@ export default function CommunityPage() {
         ← {t.back}
       </button>
       
-      <h1 className={styles.detailTitle}>{selectedPost.title}</h1>
+      <h1 className={styles.detailTitle}>{selectedPost?.title}</h1>
       <div className={styles.detailMeta}>
-        <span>{selectedPost.author}</span>
+        <span>{selectedPost?.author}</span>
         <span>•</span>
-        <span>{selectedPost.date}</span>
+        <span>{selectedPost?.date}</span>
         <span>•</span>
-        <span>{t.views}: {selectedPost.views}</span>
+        <span>{t.views}: {selectedPost?.views}</span>
         <span>•</span>
-        <span>{t.likes}: {selectedPost.likes}</span>
+        <span>{t.likes}: {selectedPost?.likes}</span>
       </div>
       
       <div className={styles.detailContent}>
-        {selectedPost.content}
+        {selectedPost?.content}
       </div>
       
       <div className={styles.commentsSection}>
-        <h3>{t.comments} ({selectedPost.commentsList.length})</h3>
+        <h3>{t.comments} ({selectedPost?.commentsList.length})</h3>
         
-        {selectedPost.commentsList.map(comment => (
+        {selectedPost?.commentsList.map(comment => (
           <div key={comment.id} className={styles.commentItem}>
             <div className={styles.commentMeta}>
               <span className={styles.commentAuthor}>{comment.author}</span>
@@ -227,12 +227,12 @@ export default function CommunityPage() {
         <div className={styles.addCommentSection}>
           <textarea 
             className={styles.commentInput}
-            placeholder={t.writeComment}
+            placeholder={t?.writeComment}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
           />
           <button className={styles.commentButton} onClick={submitComment}>
-            {t.submit}
+            {t?.submit}
           </button>
         </div>
       </div>
@@ -253,7 +253,7 @@ export default function CommunityPage() {
         type="text"
         className={styles.titleInput}
         placeholder={t.newPostTitle}
-        value={newPostContent.title}
+        value={newPostContent?.title}
         onChange={(e) => setNewPostContent({...newPostContent, title: e.target.value})}
       />
       

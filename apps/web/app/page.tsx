@@ -95,20 +95,20 @@ export default function Home() {
     { 
       id: 1, 
       icon: 'document-text', 
-      text: t.visaAlert, 
-      time: t.hoursAgo
+      text: t?.visaAlert, 
+      time: t?.hoursAgo
     },
     { 
       id: 2, 
       icon: 'chatbubble', 
-      text: t.commentAlert, 
-      time: t.hoursAgo2
+      text: t?.commentAlert, 
+      time: t?.hoursAgo2
     },
     { 
       id: 3, 
       icon: 'map', 
-      text: t.searchAlert, 
-      time: t.yesterday
+      text: t?.searchAlert, 
+      time: t?.yesterday
     },
   ];
 
@@ -116,8 +116,8 @@ export default function Home() {
   const features = [
     {
       id: 1,
-      title: t.postcodeFinderTitle,
-      description: t.postcodeFinderDesc,
+      title: t?.postcodeFinderTitle,
+      description: t?.postcodeFinderDesc,
       icon: '🔍',
       color: '#E3F2FD',
       iconColor: '#2196F3',
@@ -125,8 +125,8 @@ export default function Home() {
     },
     {
       id: 2,
-      title: t.communityTitle,
-      description: t.communityDesc,
+      title: t?.communityTitle,
+      description: t?.communityDesc,
       icon: '👥',
       color: '#E8F5E9',
       iconColor: '#4CAF50',
@@ -134,8 +134,8 @@ export default function Home() {
     },
     {
       id: 3,
-      title: t.visaGuideTitle,
-      description: t.visaGuideDesc,
+      title: t?.visaGuideTitle,
+      description: t?.visaGuideDesc,
       icon: '📄',
       color: '#FFF3E0',
       iconColor: '#FF9800',
@@ -143,8 +143,8 @@ export default function Home() {
     },
     {
       id: 4,
-      title: t.koreanServicesTitle,
-      description: t.koreanServicesDesc,
+      title: t?.koreanServicesTitle,
+      description: t?.koreanServicesDesc,
       icon: '📍',
       color: '#F3E5F5',
       iconColor: '#9C27B0',
@@ -175,7 +175,7 @@ export default function Home() {
       </div> */}
 
       {/* Quick Menu Section */}
-      <h2 className={styles.sectionTitle}>{t.quickMenu}</h2>
+      <h2 className={styles.sectionTitle}>{t?.quickMenu}</h2>
       <div className={styles.featuresGrid}>
         {features.map((feature) => (
           <Link href={feature.route} key={feature.id} className={styles.featureCard} style={{ backgroundColor: feature.color }}>
@@ -191,9 +191,9 @@ export default function Home() {
       {/* Recent Activity Section */}
       <div className={styles.activitySection}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h2 className={styles.sectionTitle} style={{ margin: '0' }}>{t.recentActivity}</h2>
+          <h2 className={styles.sectionTitle} style={{ margin: '0' }}>{t?.recentActivity}</h2>
           <button className={styles.viewMoreButton}>
-            {t.viewMore}
+            {t?.viewMore}
           </button>
         </div>
         {recentActivities.map((activity) => (
@@ -212,8 +212,8 @@ export default function Home() {
 
       {/* Info Card */}
       <div className={styles.infoCard}>
-        <h3 className={styles.infoTitle}>{t.didYouKnow}</h3>
-        <p className={styles.infoText}>{t.sydneyInfo}</p>
+        <h3 className={styles.infoTitle}>{t?.didYouKnow}</h3>
+        <p className={styles.infoText}>{t?.sydneyInfo}</p>
       </div>
     </div>
   );
