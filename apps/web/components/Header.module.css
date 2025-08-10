@@ -11,13 +11,14 @@
 .headerContent {
   display: flex;
   align-items: center;
-  max-width: 1200px;
+  /* max-width: 1200px; */
   margin: 0 auto;
   height: 64px;
+  justify-content: space-between;
 }
 
 .logo {
-  width: 180px;
+  width: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,7 +50,6 @@
   gap: 24px;
   margin: 0 20px;
   width: 100%;
-  /* width: 760px; */
   font-size: 14px;
 }
 
@@ -114,6 +114,8 @@
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s ease;
+  width: 70px;
+  text-align: center;
 }
 
 .loginButton {

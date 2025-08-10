@@ -226,6 +226,7 @@ export default function PostcodeFinderScreen() {
       
       // 정적 JSON 데이터 사용
       const geoJsonData = vicGeoJson;
+
       
       // 빅토리아주 폴리곤만 필터링 (예: 3xxx 우편번호)
       const victoriaPolygons = geoJsonData.features
@@ -539,7 +540,6 @@ export default function PostcodeFinderScreen() {
   };
 
 
-
   return (
     <SafeAreaView style={styles.container}>
      
@@ -665,57 +665,68 @@ export default function PostcodeFinderScreen() {
             
             {/* 필터 버튼 */}
             <View style={styles.filterContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton, 
-                  filter === VISA_FILTER.ALL ? styles.activeFilterButton : null
-                ]}
-                onPress={() => handleFilterChange(VISA_FILTER.ALL)}
-              >
-                <Text style={[
-                  styles.filterButtonText, 
-                  filter === VISA_FILTER.ALL ? styles.activeFilterText : null
-                ]}>All</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={[
-                  styles.filterButton, 
-                  filter === VISA_FILTER.WHV_417_REGIONAL ? styles.activeFilterButton : null
-                ]}
-                onPress={() => handleFilterChange(VISA_FILTER.WHV_417_REGIONAL)}
-              >
-                <Text style={[
-                  styles.filterButtonText, 
-                  filter === VISA_FILTER.WHV_417_REGIONAL ? styles.activeFilterText : null
-                ]}>417 Regional</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={[
-                  styles.filterButton, 
-                  filter === VISA_FILTER.WHV_417_REMOTE ? styles.activeFilterButton : null
-                ]}
-                onPress={() => handleFilterChange(VISA_FILTER.WHV_417_REMOTE)}
-              >
-                <Text style={[
-                  styles.filterButtonText, 
-                  filter === VISA_FILTER.WHV_417_REMOTE ? styles.activeFilterText : null
-                ]}>417 Remote</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={[
-                  styles.filterButton, 
-                  filter === VISA_FILTER.VISA_491 ? styles.activeFilterButton : null
-                ]}
-                onPress={() => handleFilterChange(VISA_FILTER.VISA_491)}
-              >
-                <Text style={[
-                  styles.filterButtonText, 
-                  filter === VISA_FILTER.VISA_491 ? styles.activeFilterText : null
-                ]}>491</Text>
-              </TouchableOpacity>
+              <View style={styles.filterButtonsWrapper}>
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton, 
+                    filter === VISA_FILTER.ALL ? styles.activeFilterButton : null
+                  ]}
+                  onPress={() => handleFilterChange(VISA_FILTER.ALL)}
+                >
+                  <Text style={[
+                    styles.filterButtonText, 
+                    filter === VISA_FILTER.ALL ? styles.activeFilterText : null
+                  ]}>All</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton, 
+                    filter === VISA_FILTER.WHV_417_REGIONAL ? styles.activeFilterButton : null
+                  ]}
+                  onPress={() => handleFilterChange(VISA_FILTER.WHV_417_REGIONAL)}
+                >
+                  <View style={styles.filterButtonContent}>
+                    <View style={[styles.colorDot, {backgroundColor: 'rgba(76, 175, 80, 0.8)'}]} />
+                    <Text style={[
+                      styles.filterButtonText, 
+                      filter === VISA_FILTER.WHV_417_REGIONAL ? styles.activeFilterText : null
+                    ]}>417 Regional</Text>
+                  </View>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton, 
+                    filter === VISA_FILTER.WHV_417_REMOTE ? styles.activeFilterButton : null
+                  ]}
+                  onPress={() => handleFilterChange(VISA_FILTER.WHV_417_REMOTE)}
+                >
+                  <View style={styles.filterButtonContent}>
+                    <View style={[styles.colorDot, {backgroundColor: 'rgba(255, 87, 34, 0.8)'}]} />
+                    <Text style={[
+                      styles.filterButtonText, 
+                      filter === VISA_FILTER.WHV_417_REMOTE ? styles.activeFilterText : null
+                    ]}>417 Remote</Text>
+                  </View>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton, 
+                    filter === VISA_FILTER.VISA_491 ? styles.activeFilterButton : null
+                  ]}
+                  onPress={() => handleFilterChange(VISA_FILTER.VISA_491)}
+                >
+                  <View style={styles.filterButtonContent}>
+                    <View style={[styles.colorDot, {backgroundColor: 'rgba(178, 29, 198, 0.8)'}]} />
+                    <Text style={[
+                      styles.filterButtonText, 
+                      filter === VISA_FILTER.VISA_491 ? styles.activeFilterText : null
+                    ]}>491</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
             
             {/* 선택된 우편번호 정보 표시 */}
@@ -782,44 +793,65 @@ export default function PostcodeFinderScreen() {
       </View>
       
       <ScrollView style={styles.infoContainer}>
-        {/* WHV 417 우편번호 정보 */}
-        <Text style={styles.infoTitle}>Working Holiday Visa 417 - Regional</Text>
-        <Text style={[styles.infoText, {marginBottom: 20}]}>
-          3139, 3211-3334, 3340-3424, 3430-3649, 3658-3749, 3753, 3756, 3758, 3762, 3764, 
-          3778-3781, 3783, 3797, 3799, 3810-3909, 3921-3925, 3945-3974, 3979, 3981-3996
-        </Text>
-  
+        {/* WHV 417 Regional 카드 */}
+        <View style={styles.visaCard}>
+          <View style={[styles.visaCardHeader, styles.regionalHeader]}>
+            <Text style={styles.visaCardTitle}>Working Holiday Visa 417</Text>
+            <View style={[styles.visaBadge, {backgroundColor: 'rgba(76, 175, 80, 0.2)'}]}>
+              <Text style={[styles.visaBadgeText, {color: 'rgba(76, 175, 80, 1)'}]}>Regional</Text>
+            </View>
+          </View>
+          <View style={styles.visaCardContent}>
+            <Text style={styles.visaCardSubtitle}>Eligible Postcodes:</Text>
+            <Text style={styles.infoText}>
+              3139, 3211-3334, 3340-3424, 3430-3649, 3658-3749, 3753, 3756, 3758, 3762, 3764, 
+              3778-3781, 3783, 3797, 3799, 3810-3909, 3921-3925, 3945-3974, 3979, 3981-3996
+            </Text>
+          </View>
+        </View>
 
+        {/* WHV 417 Remote 카드 */}
+        <View style={styles.visaCard}>
+          <View style={[styles.visaCardHeader, styles.remoteHeader]}>
+            <Text style={styles.visaCardTitle}>Working Holiday Visa 417</Text>
+            <View style={[styles.visaBadge, {backgroundColor: 'rgba(255, 87, 34, 0.2)'}]}>
+              <Text style={[styles.visaBadgeText, {color: 'rgba(255, 87, 34, 1)'}]}>Remote</Text>
+            </View>
+          </View>
+          <View style={styles.visaCardContent}>
+            <Text style={styles.visaCardSubtitle}>Eligible Postcodes:</Text>
+            <Text style={styles.infoText}>
+              3424, 3506, 3509, 3512, 3889-3892
+            </Text>
+          </View>
+        </View>
 
-            {/* WHV 417 Remote 우편번호 정보 */}
-            <Text style={styles.infoTitle}>Working Holiday Visa 417 - Remote</Text>
-        <Text style={styles.infoText}>
-        3424, 3506, 3509, 3512, 3889-3892
-        </Text>
-        <Text style={styles.sourceText}>
-          Source: <Text 
-            style={styles.linkText}
-            onPress={() => Linking.openURL('https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/work-holiday-417/specified-work')}
-          >
-            immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/work-holiday-417/specified-work
-          </Text>
-        </Text>
+        {/* 491 비자 소스 링크 */}
+        <TouchableOpacity 
+          style={styles.sourceLink}
+          onPress={() => Linking.openURL('https://immi.homeaffairs.gov.au/visas/working-in-australia/skill-occupation-list/regional-postcodes')}
+        >
+          <Text style={styles.sourceLinkText}>Department of Home Affairs - Regional Postcodes</Text>
+          <FontAwesome name="external-link" size={14} color="#0056b3" />
+        </TouchableOpacity>
 
         {/* 491 비자 우편번호 정보 */}
-        <Text style={[styles.infoTitle, {marginTop: 20}]}>491 visa Eligible Postcodes</Text>
-        <Text style={styles.infoText}>
-       <Text style={{fontWeight: 'bold'}}>Cities and major regional centres</Text>
-       <Text>{'\n'}</Text> 
-       <Text style={styles.infoText}>
-        3211-3232, 3235, 3240, 3328, 3330-3333, 3340, 3342
-          </Text>
-          <Text>{'\n'}</Text> 
-        <Text style={{fontWeight: 'bold'}}>Regional centres and other regional areas</Text>
-       <Text>{'\n'}</Text> 
-       <Text style={styles.infoText}>
-          3097-3099, 3139,  3233-3234, 3236-3239, 3241-3325, 3329, 3334, 3341, 3345-3424, 3430-3799, 3809-3909, 3912-3971, 3978-3996
-          </Text>
-        </Text>
+        <View style={styles.visaCard}>
+          <View style={[styles.visaCardHeader, styles.visa491Header]}>
+            <Text style={styles.visaCardTitle}>Skilled Work Regional Visa 491</Text>
+          </View>
+          <View style={styles.visaCardContent}>
+            <Text style={styles.visaCardSubtitle}>Cities and major regional centres:</Text>
+            <Text style={styles.infoText}>
+              3211-3232, 3235, 3240, 3328, 3330-3333, 3340, 3342
+            </Text>
+            
+            <Text style={[styles.visaCardSubtitle, {marginTop: 10}]}>Regional centres and other regional areas:</Text>
+            <Text style={styles.infoText}>
+              3097-3099, 3139, 3233-3234, 3236-3239, 3241-3325, 3329, 3334, 3341, 3345-3424, 3430-3799, 3809-3909, 3912-3971, 3978-3996
+            </Text>
+          </View>
+        </View>
 
         <Text style={styles.sourceText}>
           Source: <Text 
@@ -831,34 +863,44 @@ export default function PostcodeFinderScreen() {
         </Text>
         
    {/* ------- Disclaimer section ------- */}
-   <View style={styles.contactSection}>
-          <Text style={styles.contactTitle}>Disclaimer</Text>
-          <Text style={styles.contactText}>
-          This app is not affiliated with or endorsed by the Australian Government. It is provided for informational and reference purposes only.{'\n'}{'\n'} 
-          For the most accurate and up-to-date information, please visit the Australian Department of Home Affairs <Text style={styles.emailLink} onPress={() => Linking.openURL('https://immi.homeaffairs.gov.au/')}>
-           (immi.homeaffairs.gov.au)
-        </Text>
+   <View style={styles.footerCard}>
+          <Text style={styles.footerCardTitle}>Disclaimer</Text>
+          <View style={styles.titleUnderline} />
+          <Text style={styles.footerCardText}>
+            This app is not affiliated with or endorsed by the Australian Government. It is provided for informational and reference purposes only.
+          </Text>
+          <Text style={styles.footerCardText}>
+            For the most accurate and up-to-date information, please visit the{' '}
+            <Text style={styles.footerLink} onPress={() => Linking.openURL('https://immi.homeaffairs.gov.au/')}>
+              Australian Department of Home Affairs
+            </Text>
           </Text>
         </View>
 
 
            {/* ------- Contact section ------- */}
-           <View style={styles.contactSection}>
-          <Text style={styles.contactTitle}>Contact Us</Text>
-          <Text style={styles.contactText}>
-      Please feedback us via email:
-          </Text>
-          <TouchableOpacity 
-            onPress={() => Linking.openURL('mailto:kshhhh0640@gmail.com?subject=Feedback')}
-          >
-            <Text style={styles.emailLink}>kshhhh0640@gmail.com</Text>
-
-            <Text style={styles.privacyLink} onPress={() => Linking.openURL('https://www.freeprivacypolicy.com/live/d082fabb-af9f-43e3-b685-88588f31752a')}>Privacy Policy
+           <View style={styles.footerCard}>
+          <Text style={styles.footerCardTitle}>Contact Us</Text>
+          <View style={styles.titleUnderline} />
+          <View style={styles.contactItem}>
+            <FontAwesome name="envelope" size={16} color="#555" />
+            <Text style={styles.footerCardText}>
+              <Text>Feedback: </Text>
+              <Text style={styles.footerLink} onPress={() => Linking.openURL('mailto:kshhhh0640@gmail.com?subject=Feedback')}>
+                kshhhh0640@gmail.com
+              </Text>
             </Text>
-          </TouchableOpacity>
+          </View>
+          <View style={styles.contactItem}>
+            <FontAwesome name="shield" size={16} color="#555" />
+            <Text 
+              style={styles.footerLink}
+              onPress={() => Linking.openURL('https://www.freeprivacypolicy.com/live/d082fabb-af9f-43e3-b685-88588f31752a')}
+            >
+              Privacy Policy
+            </Text>
+          </View>
         </View>
-
-
 
 
       </ScrollView>
@@ -944,6 +986,9 @@ paddingBottom: 10,
     left: 16,
     flexDirection: 'row',
   },
+  filterButtonsWrapper: {
+    flexDirection: 'row',
+  },
   filterButton: {
     width: 80,
     height: 30,
@@ -963,6 +1008,16 @@ paddingBottom: 10,
   },
   activeFilterText: {
     color: '#fff',
+  },
+  filterButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  colorDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 4,
   },
   searchContainer: {
     padding: 16,
@@ -1025,32 +1080,120 @@ paddingBottom: 10,
     fontStyle: 'italic',
   },
    // 문의하기 이메일 스타일 추가
-   contactSection: {
-    marginTop: 24,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+   footerCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  contactTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  footerCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
     marginBottom: 8,
   },
-  contactText: {
+  titleUnderline: {
+    height: 1,
+    backgroundColor: '#ddd',
+    marginVertical: 8,
+  },
+  footerCardText: {
     fontSize: 14,
     color: '#333',
+    lineHeight: 20,
     marginBottom: 8,
   },
-  emailLink: {
+  footerLink: {
     fontSize: 14,
     color: '#007AFF',
     textDecorationLine: 'underline',
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  regionalHeader: {
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderLeftWidth: 4,
+    borderLeftColor: 'rgba(76, 175, 80, 0.8)',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+  },
+  remoteHeader: {
+    backgroundColor: 'rgba(255, 87, 34, 0.1)',
+    borderLeftWidth: 4,
+    borderLeftColor: 'rgba(255, 87, 34, 0.8)',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+  },
+  visa491Header: {
+    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+    borderLeftWidth: 4,
+    borderLeftColor: 'rgba(156, 39, 176, 0.8)',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+  },
+  visaBadge: {
+    borderRadius: 12,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+  },
+  visaBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  visaCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  visaCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+  },
+  visaCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  visaCardContent: {
+    padding: 16,
+  },
+  visaCardSubtitle: {
+    fontSize: 14,
+    fontWeight: '500',
     marginBottom: 8,
   },
-  privacyLink: {
+  sourceLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 12,
+    marginBottom: 16,
+    marginTop: 8,
+    justifyContent: 'space-between',
+  },
+  sourceLinkText: {
     fontSize: 14,
-    color: '#ababab',
-    textDecorationLine: 'underline',
-    marginBottom: 8,
+    color: '#0056b3',
   },
 });  
