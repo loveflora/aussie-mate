@@ -166,3 +166,79 @@
   margin-bottom: 1rem;
   font-size: 0.875rem;
 }
+
+.successMessage {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.infoMessage {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+/* 이메일 인증 버튼 관련 스타일 */
+.emailVerifyGroup {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.emailVerifyGroup .input {
+  flex: 1;
+}
+
+.verifyButton {
+  white-space: nowrap;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  height: calc(100% - 2px);
+  min-width: 120px;
+}
+
+.verifyButton:hover {
+  background-color: #1976d2;
+}
+
+.verifyButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* 이메일 인증 완료 배지 스타일 */
+.verifiedBadge {
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.verifiedBadge::before {
+  content: "✓";
+  margin-right: 0.5rem;
+  font-weight: bold;
+}

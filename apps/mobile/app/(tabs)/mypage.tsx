@@ -84,14 +84,11 @@ export default function MyPageScreen() {
       language: "언어",
       darkMode: "다크 모드",
       privacySettings: "개인정보 설정",
-      dataManagement: "데이터 관리",
-      downloadData: "내 데이터 다운로드",
       deleteAccount: "계정 삭제",
       logout: "로그아웃",
       on: "켜짐",
       off: "꺼짐",
       manage: "관리",
-      download: "다운로드",
     },
     en: {
       myPage: "My Page",
@@ -112,13 +109,11 @@ export default function MyPageScreen() {
       darkMode: "Dark Mode",
       privacySettings: "Privacy Settings",
       dataManagement: "Data Management",
-      downloadData: "Download My Data",
       deleteAccount: "Delete Account",
       logout: "Log Out",
       on: "On",
       off: "Off",
       manage: "Manage",
-      download: "Download",
     }
   };
 

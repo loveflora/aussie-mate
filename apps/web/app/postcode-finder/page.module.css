@@ -675,70 +675,59 @@
   .searchSection {
     flex-direction: column;
   }
-  
+  .errorMessage {
+    color: #d32f2f;
+    font-weight: 500;
+    padding: 16px;
+    font-size: 12px;
+    text-align: center;
+  }
 
+  .resultCard {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
 
+  .resultCard h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #333;
+  }
 
+  .resultCard p {
+    margin: 8px 0;
+    font-size: 15px;
+  }
 
-/* Search Results Display Styles */
-.searchResultDisplay {
-  /* margin-top: 16px;
-  border-top: 1px solid #eee; */
+  .eligibilityItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 6px 0;
+    border-bottom: 1px dashed #eee;
+  }
 
-} 
+  .eligibilityItem:last-child {
+    border-bottom: none;
+  }
 
-.errorMessage {
-  color: #d32f2f;
-  font-weight: 500;
-  padding: 16px;
-  font-size: 12px;
-  text-align: center;
-}
+  .visaLabel {
+    font-weight: 500;
+    flex: 1;
+  }
 
-.resultCard {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+  .eligible {
+    color: #388e3c;
+    font-weight: 500;
+  }
 
-.resultCard h3 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-top: 0;
-  margin-bottom: 12px;
-  color: #333;
-}
-
-.resultCard p {
-  margin: 8px 0;
-  font-size: 15px;
-}
-
-.eligibilityItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  padding: 6px 0;
-  border-bottom: 1px dashed #eee;
-}
-
-.eligibilityItem:last-child {
-  border-bottom: none;
-}
-
-.visaLabel {
-  font-weight: 500;
-  flex: 1;
-}
-
-.eligible {
-  color: #388e3c;
-  font-weight: 500;
-}
-
-.ineligible {
-  color: #d32f2f;
-  font-weight: 500;
+  .ineligible {
+    color: #d32f2f;
+    font-weight: 500;
+  }
 }

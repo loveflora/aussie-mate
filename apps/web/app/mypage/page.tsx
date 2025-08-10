@@ -1,10 +1,11 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { LanguageContext } from "../client-layout";
 import Link from "next/link";
+import { useAuth } from "../../contexts/AuthContext";
 
 // 테스트용 사용자 데이터
 const mockUser = {
@@ -53,12 +54,45 @@ export default function MyPage() {
   // 글로벌 언어 컨텍스트 사용
   const { language } = useContext(LanguageContext);
   const router = useRouter();
+  const { user, isAuthenticated, isLoading, signOut } = useAuth(); // 인증 컨텍스트 사용
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // 로그아웃 모달 상태
+  const [logoutLoading, setLogoutLoading] = useState(false); // 로그아웃 로딩 상태
   
   // 수정 페이지로 이동하는 함수
   const handleEditClick = () => {
     router.push("/mypage/edit");
   };
   
+  // 로그아웃 모달 표시 함수
+  const showLogoutConfirmation = () => {
+    setShowLogoutModal(true);
+  };
+  
+  // 로그아웃 모달 닫기 함수
+  const hideLogoutModal = () => {
+    setShowLogoutModal(false);
+  };
+  
+  // 로그아웃 처리 함수
+  const handleLogout = async () => {
+    setLogoutLoading(true);
+    try {
+      const { error } = await signOut();
+      if (error) {
+        console.error("Logout error:", error);
+        alert(language === 'ko' ? "로그아웃 중 오류가 발생했습니다." : "Error during logout.");
+      } else {
+        router.push("/auth/login");
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+      alert(language === 'ko' ? "로그아웃 중 오류가 발생했습니다." : "Error during logout.");
+    } finally {
+      setLogoutLoading(false);
+      hideLogoutModal();
+    }
+  };
+
   // 번역 텍스트
   const translations = {
     ko: {
@@ -79,13 +113,12 @@ export default function MyPage() {
       language: "언어",
       darkMode: "다크 모드",
       privacySettings: "개인정보 설정",
-      dataManagement: "데이터 관리",
       deleteAccount: "계정 삭제",
       logout: "로그아웃",
       on: "켜짐",
       off: "꺼짐",
       manage: "관리",
-      download: "다운로드",
+      download: "Download",
     },
     en: {
       myPage: "My Page",
@@ -135,7 +168,7 @@ export default function MyPage() {
           </div>
           <div className={styles.profileInfo}>
             <h1 className={styles.username}>{mockUser.username}</h1>
-            <p className={styles.email}>{mockUser.email}</p>
+            <p className={styles.email}>{user?.email || mockUser.email}</p>
             <p className={styles.memberSince}>
               {t.memberSince}: {mockUser.memberSince}
             </p>
@@ -227,13 +260,53 @@ export default function MyPage() {
             </div>
             
             <div className={styles.settingItem}>
+              <span className={styles.settingLabel}>{t.dataManagement}</span>
               <span className={styles.settingAction}>{t.download}</span>
             </div>
           </div>
           
-          <button className={styles.logoutButton}>{t.logout}</button>
+          <button 
+            onClick={showLogoutConfirmation} 
+            className={styles.logoutButton}
+          >
+            {t.logout}
+          </button>
         </div>
       </div>
+
+      {/* 로그아웃 확인 모달 */}
+      {showLogoutModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>
+              {language === 'ko' ? '로그아웃' : 'Logout'}
+            </h3>
+            <p className={styles.modalText}>
+              {language === 'ko' 
+                ? '정말 로그아웃 하시겠습니까?' 
+                : 'Are you sure you want to log out?'}
+            </p>
+            <div className={styles.modalButtons}>
+              <button 
+                className={`${styles.modalButton} ${styles.cancelButton}`}
+                onClick={hideLogoutModal}
+                disabled={logoutLoading}
+              >
+                {language === 'ko' ? '취소' : 'Cancel'}
+              </button>
+              <button 
+                className={`${styles.modalButton} ${styles.confirmButton}`}
+                onClick={handleLogout}
+                disabled={logoutLoading}
+              >
+                {logoutLoading 
+                  ? (language === 'ko' ? '처리 중...' : 'Processing...') 
+                  : (language === 'ko' ? '로그아웃' : 'Logout')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

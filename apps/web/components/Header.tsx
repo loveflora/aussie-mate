@@ -27,10 +27,10 @@ export default function Header() {
     home: language === 'ko' ? '홈' : 'Home',
     community: language === 'ko' ? '커뮤니티' : 'Community',
     postcodes: language === 'ko' ? '우편번호 찾기' : 'Postcode Finder',
-    visaInfo: language === 'ko' ? '마이페이지' : 'My Page',
     language: language === 'ko' ? 'English' : '한국어',
     login: language === 'ko' ? '로그인' : 'Log in',
-    signup: language === 'ko' ? '회원가입' : 'Sign up'
+    signup: language === 'ko' ? '회원가입' : 'Sign up',
+    mypage: language === 'ko' ? '내 정보' : 'My Profile'
   };
   
   return (
@@ -68,13 +68,7 @@ export default function Header() {
           >
             {t.postcodes}
           </Link>
-          <Link 
-            href="/mypage"
-            className={`${styles.navItem} ${isActive('/mypage') ? styles.active : ''}`}
-          >
-            {t.visaInfo}
-          </Link>
-
+   
            {/* 언어 전환 버튼 */}
    <button 
             onClick={toggleLanguage} 
@@ -86,16 +80,22 @@ export default function Header() {
         
         <div className={styles.rightSection}>
 
-  
-
-          {/* 로그인/회원가입 버튼 */}
+          {/* 인증 상태에 따라 버튼 표시 */}
           <div className={styles.authButtons}>
-            <Link href="/auth/login" className={styles.loginButton}>
-              {t.login}
-            </Link>
-            <Link href="/auth/signup" className={styles.signupButton}>
-              {t.signup}
-            </Link>
+            {user ? (
+              <Link href="/mypage" className={styles.loginButton}>
+                {t.mypage}
+              </Link>
+            ) : (
+              <>
+                <Link href="/auth/login" className={styles.loginButton}>
+                  {t.login}
+                </Link>
+                <Link href="/auth/signup" className={styles.signupButton}>
+                  {t.signup}
+                </Link>
+              </>
+            )}
           </div>
           
        

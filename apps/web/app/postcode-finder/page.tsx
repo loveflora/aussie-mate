@@ -334,31 +334,7 @@ export default function PostcodeFinderPage() {
       const geoJsonData = await fetchVicPostcodesGeoJson();
       
       
-      // DOM에 직접 기록 (콘솔이 보이지 않을 때 대안)
-      const logElement = document.createElement('div');
-      logElement.style.position = 'fixed';
-      logElement.style.top = '10px';
-      logElement.style.right = '10px';
-      logElement.style.backgroundColor = 'rgba(0,0,0,0.8)';
-      logElement.style.color = 'white';
-      logElement.style.padding = '10px';
-      logElement.style.zIndex = '9999';
-      logElement.style.maxWidth = '400px';
-      logElement.style.maxHeight = '200px';
-      logElement.style.overflow = 'auto';
-      
-      // // 데이터 정보 표시 (특히 features 개수)
-      // const featuresCount = geoJsonData && geoJsonData.features ? geoJsonData.features.length : 0;
-      // logElement.innerHTML = `
-      //   <div>✅ 데이터 로드 성공: ${geoJsonData ? '데이터 있음' : '데이터 없음'}</div>
-      //   <div>🔢 Features 수: ${featuresCount}</div>
-      //   <div style="margin-top:5px;font-size:12px;">데이터는 window.__geoJsonData에 저장됨</div>
-      //   <button onclick="this.parentNode.remove()" style="margin-top:5px;padding:2px 5px;">닫기</button>
-      // `;
-      // document.body.appendChild(logElement);
-      
-      // 원래 콘솔 로그
-      console.log("########################", geoJsonData);
+   
       
       // 데이터가 없으면 빈 배열 반환
       if (!geoJsonData || !geoJsonData.features) {

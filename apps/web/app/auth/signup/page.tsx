@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useContext } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useContext, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LanguageContext } from "../../client-layout";
 import { useAuth } from "../../../contexts/AuthContext";
+import { authApi } from "api";
 import styles from "./signup.module.css";
 
 export default function SignUp() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { language } = useContext(LanguageContext);
   const { signUp, signInWithProvider } = useAuth();
   
@@ -16,8 +18,13 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifyingSending, setIsVerifyingSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [verifyMessage, setVerifyMessage] = useState<{ type: "error" | "success" | "info", text: string } | null>(null);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [verifySuccess, setVerifySuccess] = useState(false);
+
   // Translations
   const t = {
     ko: {
@@ -26,6 +33,13 @@ export default function SignUp() {
       password: "비밀번호",
       confirmPassword: "비밀번호 확인",
       signUpButton: "가입하기",
+      verifyButton: "이메일 인증하기",
+      verified: "인증 완료",
+      verifySuccess: "인증 메일이 발송되었습니다. 이메일을 확인해주세요.",
+      verifyError: "인증 메일 발송 중 오류가 발생했습니다.",
+      verifyComplete: "이메일 인증이 완료되었습니다.",
+      verifyRequired: "이메일 인증이 필요합니다. 이메일 인증을 완료해주세요.",
+      emailExists: "이미 가입된 이메일입니다. 로그인해 주세요.",
       passwordMismatch: "비밀번호가 일치하지 않습니다.",
       googleSignUp: "구글로 가입하기",
       facebookSignUp: "페이스북으로 가입하기",
@@ -39,6 +53,13 @@ export default function SignUp() {
       password: "Password",
       confirmPassword: "Confirm Password",
       signUpButton: "Sign Up",
+      verifyButton: "Verify Email",
+      verified: "Verified",
+      verifySuccess: "Verification email has been sent. Please check your inbox.",
+      verifyError: "Failed to send verification email.",
+      verifyComplete: "Email verification complete.",
+      verifyRequired: "Email verification required. Please verify your email before signing up.",
+      emailExists: "Email already registered. Please log in.",
       passwordMismatch: "Passwords don't match",
       googleSignUp: "Sign up with Google",
       facebookSignUp: "Sign up with Facebook",
@@ -47,10 +68,48 @@ export default function SignUp() {
       login: "Already have an account? Log in"
     }
   }[language];
+
+  // 페이지 로드 시 URL 파라미터 체크
+  useEffect(() => {
+    const verified = searchParams.get('verified');
+    const verifiedEmail = searchParams.get('email');
+    
+    if (verified === 'true' && verifiedEmail) {
+      setEmail(verifiedEmail);
+      setIsEmailVerified(true);
+      setVerifyMessage({
+        type: "success",
+        text: t.verifyComplete
+      });
+    }
+    
+    // 인증 상태 체크를 위한 함수
+    const checkVerificationStatus = async () => {
+      const { verified } = await authApi.checkEmailVerificationStatus();
+      if (verified) {
+        setIsEmailVerified(true);
+        setVerifyMessage({
+          type: "success",
+          text: t.verifyComplete
+        });
+      }
+    };
+    
+    // 로그인 상태라면 이메일 인증 상태 확인
+    if (email) {
+      checkVerificationStatus();
+    }
+  }, [searchParams, t.verifyComplete]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    // 이메일 인증 확인
+    if (!isEmailVerified) {
+      setError(t.verifyRequired);
+      return;
+    }
     
     // Check if passwords match
     if (password !== confirmPassword) {
@@ -66,8 +125,8 @@ export default function SignUp() {
       if (error) {
         setError(error.message);
       } else {
-        // Show success message or redirect
-        router.push("/auth/verify-email");
+        // 가입 완료 후 홈페이지로 리다이렉트
+        router.push("/");
       }
     } catch (err: any) {
       setError(err.message || "회원가입 중 오류가 발생했습니다.");
@@ -93,6 +152,54 @@ export default function SignUp() {
     }
   };
   
+  // 이메일 인증 메일 발송
+  const handleSendVerification = async () => {
+    // 이메일 형식 검사
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      setError("유효한 이메일 주소를 입력해주세요.");
+      return;
+    }
+    
+    setIsVerifyingSending(true);
+    setError(null);
+    
+    try {
+      // 이메일 중복 확인
+      const { exists, error: existsError } = await authApi.checkEmailExists(email);
+      
+      if (existsError) {
+        setError(existsError.message);
+        return;
+      }
+      
+      if (exists) {
+        // 이미 가입된 이메일인 경우 오류를 표시하는 대신 메시지로 알림
+        setVerifyMessage({ 
+          type: "info", 
+          text: t.emailExists 
+        });
+        return;
+      }
+      
+      // 인증 메일 발송
+      const { error } = await authApi.sendEmailVerification(email);
+      
+      if (error) {
+        setError(error.message || t.verifyError);
+        setVerifyMessage({ type: "error", text: t.verifyError });
+      } else {
+        setVerifyMessage({ type: "success", text: t.verifySuccess });
+        // 3초 후 성공 메시지 숨김
+        setTimeout(() => setVerifyMessage(null), 3000);
+      }
+    } catch (error: any) {
+      setError(error.message || t.verifyError);
+      setVerifyMessage({ type: "error", text: t.verifyError });
+    } finally {
+      setIsVerifyingSending(false);
+    }
+  };
+
   return (
     <div className={styles.signupContainer}>
       <div className={styles.signupForm}>
@@ -104,18 +211,51 @@ export default function SignUp() {
           </div>
         )}
         
+        {verifyMessage && (
+          <div className={
+            verifyMessage.type === 'error' ? styles.errorMessage : 
+            verifyMessage.type === 'success' ? styles.successMessage :
+            styles.infoMessage
+          }>
+            {verifyMessage.text}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label htmlFor="email">{t.email}</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-              className={styles.input}
-            />
+            <div className={styles.emailVerifyGroup}>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  // 이메일이 변경되면 인증 상태 리셋
+                  if (isEmailVerified) {
+                    setIsEmailVerified(false);
+                    setVerifyMessage(null);
+                  }
+                }}
+                required
+                disabled={isLoading}
+                className={styles.input}
+              />
+              {isEmailVerified ? (
+                <span className={styles.verifiedBadge}>
+                  {t.verified}
+                </span>
+              ) : (
+                <button 
+                  type="button"
+                  onClick={handleSendVerification}
+                  disabled={isVerifyingSending || !email}
+                  className={styles.verifyButton}
+                >
+                  {isVerifyingSending ? "..." : t.verifyButton}
+                </button>
+              )}
+            </div>
           </div>
           
           <div className={styles.formGroup}>

@@ -1,19 +1,51 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authApi } from "api";
 
 export default function AuthCallback() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
         // Get the hash from the URL
         const hash = window.location.hash;
+        const url = window.location.href;
         
-        // If there is no hash, redirect to login page
+        console.log('Auth Callback - URL:', url);
+        console.log('Auth Callback - Hash:', hash);
+        
+        // 이메일 인증 처리
+        const type = searchParams.get('type');
+        if (type === 'recovery' || type === 'signup' || type === 'email' || url.includes('verify-email')) {
+          // 이메일 인증인 경우 가입 페이지로 직접 리다이렉트
+          const token = hash.includes('access_token=') ? 
+            new URLSearchParams(hash.substring(1)).get('access_token') : 
+            searchParams.get('token');
+          
+          // 이메일 정보 가져오기 시도
+          if (token) {
+            try {
+              const { email } = await authApi.verifyEmailSignup(token);
+              if (email) {
+                router.push(`/auth/signup?verified=true&email=${encodeURIComponent(email)}`);
+              } else {
+                // 이메일을 확인할 수 없는 경우 기본 리다이렉트
+                router.push('/auth/signup?verified=true');
+              }
+              return;
+            } catch (err) {
+              // 토큰 처리 실패 시 기본 페이지로 이동
+              router.push('/auth/signup');
+              return;
+            }
+          }
+        }
+        
+        // 일반 OAuth 콜백 처리
         if (!hash) {
           router.push("/login");
           return;
@@ -35,7 +67,7 @@ export default function AuthCallback() {
     };
 
     handleAuthCallback();
-  }, [router]);
+  }, [router, searchParams]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

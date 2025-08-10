@@ -36,11 +36,13 @@ export const getSupabaseClient = () => {
   
   if (!supabaseUrl || !supabaseAnonKey) {
     if (process.env.NODE_ENV !== 'production') {
-      console.warn('⚠️ Supabase 환경 변수가 설정되지 않았습니다. 기본값 또는 테스트 값을 사용합니다.');
+      console.error('❌ Supabase 환경 변수가 설정되지 않았습니다. 로그인 및 인증 관련 기능이 작동하지 않습니다.');
+      console.error('환경 변수를 .env.local 파일에 추가하세요:');
+      console.error('NEXT_PUBLIC_SUPABASE_URL=your_supabase_url');
+      console.error('NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key');
     }
-    // 개발 중 기본값 제공 (실제 프로덕션에서는 사용하지 않음)
-    supabaseUrl = supabaseUrl || 'https://your-test-url.supabase.co';
-    supabaseAnonKey = supabaseAnonKey || 'your-test-anon-key';
+    
+    throw new Error('Supabase configuration is missing. Please check your environment variables.');
   }
   
   return createClient<Database>(supabaseUrl, supabaseAnonKey);
@@ -89,6 +91,225 @@ export const authApi = {
       provider,
       options: redirectTo ? { redirectTo } : undefined,
     });
+  },
+
+  verifyEmail: async (token: string) => {
+    const client = getSupabaseClient();
+    try {
+      // Supabase의 verifyOtp 대신 직접 세션 확인 방식으로 변경
+      console.log('토큰 확인 시도:', token);
+      
+      // hash와 token_hash는 다를 수 있으므로 다양한 방식 시도
+      let result;
+      let email = '';
+      
+      try {
+        // 방법 1: 기본 이메일 확인 (type: email)
+        result = await client.auth.verifyOtp({
+          token_hash: token,
+          type: 'email',
+        });
+        
+        // 세션에서 이메일 추출
+        if (result.data?.user) {
+          email = result.data.user.email || '';
+        }
+      } catch (err) {
+        console.log('첫번째 방식 실패, 다른 방식 시도중...');
+        try {
+          // 방법 2: 토큰만 사용
+          result = await client.auth.verifyOtp({
+            token_hash: token,
+            type: 'signup',
+          });
+          
+          // 세션에서 이메일 추출
+          if (result.data?.user) {
+            email = result.data.user.email || '';
+          }
+        } catch (err2) {
+          // 방법 3: 세션 상태 확인
+          const { data } = await client.auth.getSession();
+          if (data.session) {
+            result = { data: data.session, error: null };
+            email = data.session?.user?.email || '';
+            return { data: data.session, error: null, email };
+          } else {
+            throw new Error('인증에 실패했습니다');
+          }
+        }
+      }
+      
+      return { ...result, email };
+    } catch (error) {
+      console.error('Email verification error:', error);
+      return { error, email: '' };
+    }
+  },
+  
+  verifyEmailSignup: async (token: string) => {
+    const client = getSupabaseClient();
+    try {
+      console.log('회원가입 이메일 토큰 확인 시도:', token);
+      let email = '';
+      
+      // 여러 방식 시도
+      try {
+        // 방법 1: signup 유형으로 시도
+        const result = await client.auth.verifyOtp({
+          token_hash: token,
+          type: 'signup',
+        });
+        
+        // 세션에서 이메일 추출
+        if (result.data?.user) {
+          email = result.data.user.email || '';
+        }
+        
+        return { ...result, email };
+      } catch (err) {
+        try {
+          // 방법 2: 이메일 유형으로 시도
+          const result = await client.auth.verifyOtp({
+            token_hash: token,
+            type: 'email',
+          });
+          
+          // 세션에서 이메일 추출
+          if (result.data?.user) {
+            email = result.data.user.email || '';
+          }
+          
+          return { ...result, email };
+        } catch (err2) {
+          // 방법 3: 세션에서 이메일 확인
+          const { data } = await client.auth.getSession();
+          if (data.session?.user?.email) {
+            email = data.session.user.email;
+          }
+          
+          // 방법 4: 커스텀 엔드포인트 사용 (Supabase에서 지원할 경우)
+          const { error } = await fetch(`${client.auth.api.url}/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }),
+          }).then(res => res.json());
+          
+          if (error) throw error;
+          return { error: null, email };
+        }
+      }
+    } catch (error) {
+      console.error('Signup verification error:', error);
+      return { error, email: '' };
+    }
+  },
+  
+  verifyRecovery: async (token: string, newPassword: string) => {
+    const client = getSupabaseClient();
+    try {
+      // First verify the recovery token
+      const { error: verifyError } = await client.auth.verifyOtp({
+        token_hash: token,
+        type: 'recovery',
+      });
+      
+      if (verifyError) {
+        return { error: verifyError };
+      }
+      
+      // Then update the password
+      const { error: updateError } = await client.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (updateError) {
+        return { error: updateError };
+      }
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Password recovery error:', error);
+      return { error };
+    }
+  },
+  
+  sendEmailVerification: async (email: string) => {
+    const client = getSupabaseClient();
+    try {
+      console.log('이메일 인증 링크 전송 시도:', email);
+      
+      // 이메일 인증 링크 전송
+      const { error } = await client.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false, // 사용자가 존재하지 않으면 새로 생성하지 않음
+          emailRedirectTo: `${window.location.origin}/auth/signup?verified=true&email=${encodeURIComponent(email)}`
+        }
+      });
+      
+      return { error };
+    } catch (error) {
+      console.error('Email verification send error:', error);
+      return { error };
+    }
+  },
+  
+  // 이메일 중복 확인 함수
+  checkEmailExists: async (email: string) => {
+    const client = getSupabaseClient();
+    try {
+      console.log('이메일 존재 여부 확인:', email);
+      
+      // 직접적인 API가 없으므로 signUp API 사용해서 확인
+      // 사용자가 이미 존재하면 오류 발생
+      const { error } = await client.auth.signUp({
+        email,
+        password: `temp-${Math.random().toString(36).substring(2, 10)}`, // 임시 비밀번호
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: { checkOnly: true } // 실제 가입용이 아님을 표시
+        }
+      });
+      
+      // 이미 존재하는 이메일 관련 오류가 있으면 존재함
+      if (error && (
+        error.message.includes('already registered') || 
+        error.message.includes('already in use') ||
+        error.message.includes('already exists')
+      )) {
+        return { exists: true, error: null };
+      }
+      
+      // 다른 오류이거나 오류가 없으면 존재하지 않음
+      return { exists: false, error: error || null };
+    } catch (error) {
+      console.error('Email check error:', error);
+      return { exists: false, error };
+    }
+  },
+  
+  // 현재 사용자의 이메일 인증 상태 확인
+  checkEmailVerificationStatus: async () => {
+    const client = getSupabaseClient();
+    try {
+      // 현재 세션 정보 가져오기
+      const { data: { session }, error } = await client.auth.getSession();
+      
+      if (error || !session) {
+        return { verified: false, error };
+      }
+      
+      // email_confirmed_at이 있거나 app_metadata에 provider가 email이 아닌 경우(소셜 로그인) 이메일 인증된 것으로 간주
+      const user = session.user;
+      const verified = user.email_confirmed_at !== null || 
+                       (user.app_metadata && user.app_metadata.provider !== 'email');
+      
+      return { verified, error: null };
+    } catch (error) {
+      console.error('Check email verification status error:', error);
+      return { verified: false, error };
+    }
   },
   
   onAuthStateChange: (callback: (event: any, session: any) => void) => {
