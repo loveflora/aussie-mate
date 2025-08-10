@@ -83,7 +83,7 @@ export default function ForgotPassword() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginForm}>
-        <h1 className={styles.title}>{t.title}</h1>
+        <h1 className={styles.title}>{t?.title || "Forgot Password"}</h1>
         
         {message && (
           <div className={
